@@ -1,5 +1,5 @@
 var isHidden=1;//此行可修改
-var collegeName="某个学院"//此行可修改，初衷是删掉所以已经选掉的培养方案课程
+var collegeName="某个学院";//此行可修改，初衷是删掉所以已经选掉的培养方案课程
 var zz;
 
 for(zz of document.getElementsByTagName('span')){
