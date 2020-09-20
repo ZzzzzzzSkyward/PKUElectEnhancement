@@ -1,5 +1,5 @@
 如果使用油猴插件，那么请新建脚本并复制以下内容保存：
-···
+```javascript
 // ==UserScript==
 // @name     未命名脚本 202118
 // @version  1
@@ -13,4 +13,4 @@
 var a=document.createElement("script");
 a.setAttribute("src","https://www.zzzzzzzs.xyz/auto.js?q=1");
 document.head.appendChild(a);
-···
+```
