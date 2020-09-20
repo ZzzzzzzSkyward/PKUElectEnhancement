@@ -11,6 +11,6 @@
 // ==/UserScript==
 "use strict";
 var a=document.createElement("script");
-a.setAttribute("src","https://www.zzzzzzzs.xyz/auto.js?q=1");
+a.setAttribute("src","https://zzzzzzzskyward.github.io/auto.js");
 document.head.appendChild(a);
 ```
