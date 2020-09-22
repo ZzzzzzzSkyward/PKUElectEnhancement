@@ -1,5 +1,14 @@
 "use strict";
-window.desiredClass=[];
+if(location.search&&(location.pathname.search("electSupplement")!==-1)){
+    history.go(-1);
+    throw new Error("");
+}
+if(
+    location.pathname!=="/elective2008/edu/pku/stu/elective/controller/supplement/SupplyCancel.do"&&
+    location.pathname!=="/elective2008/edu/pku/stu/elective/controller/supplement/supplement.jsp"
+) throw new Error("not usable");
+if(!window.localStorage["desired"]) localStorage["desired"]="[]";
+window.desiredClass=JSON.parse(window.localStorage["desired"]);
 window.zzz={};
 zzz.get=function (name) {
     if(name[0]==='.') return zzz.get.cls(name.substr(1));
@@ -83,7 +92,7 @@ zzz.fetch={
                 else return promise;
             };
         }
-        else if(zzz.fetch.ajaxEnabled){
+        if(zzz.fetch.ajaxEnabled){
             zzz.fetch.ajax=function (settings) {
                 if(!settings.url) return false;
                 var xhr=new XMLHttpRequest();
@@ -128,13 +137,16 @@ zzz.set=function (element,attribute,value) {
 zzz.fetch.init();
 window.code=null;
 window.table=null;
+window.validImg=null;
 window.info=[];
+window.elements=[];
 window.getTBody=function () {
     if(table&&table.firstChild){
         var b=table.childNodes[1];
         var i=b.firstElementChild,index=0,idx=1;
         while(i.nextElementSibling){
             i=i.nextElementSibling;
+            i.value=index;
             let j=i.firstElementChild;
             if(!j) break;
             info[index]=[];
@@ -151,10 +163,11 @@ window.getTBody=function () {
                 }
                 else idx++;
             }
-            info[index][idx]=parseInt(info[index][idx-1].replace(/^\d*\//,""));
-            info[index][idx-1]=parseInt(info[index][idx-1].replace(/\/\d*$/,""));
+            info[index][idx]=parseInt(info[index][idx-1].replace(/^\d* \/ /,""));
+            info[index][idx-1]=parseInt(info[index][idx-1].replace(/\/ \d*$/,""));
             index++;
             idx=1;
+            elements.push(i);
         }
     }
     else setTimeout(getTBody,1000);
@@ -162,19 +175,41 @@ window.getTBody=function () {
 window.getAll=function () {
     code=zzz.get("#validCode");
     table=zzz.get(".datagrid");
+    validImg=zzz.get.id("imgname");
     getTBody();
     console.log(info);
 };
 getAll();
-window.autoElect=function () {
-    for(let i of desiredClass){
-        for(let j of info){
-            let flag=true;
-            for(let n=1;n<i.length&&n<j.length-2&&flag;n++){
-                if(i[n]!==j[n]) flag=false;
+window.choose=function (func,isreverse) {
+    if(isreverse===undefined) isreverse=false;
+    for(let j in info){
+        let flbg=true;
+        for(let i of desiredClass){
+            let flag=false;
+            for(let n=1;n<i.length&&(n<(info[j].length-2))&&(!flag);n++){
+                if(i[n]!==info[j][n]) flag=true;
             }
-            if(flag) elect(j);
+            if(!flag){
+                if(!isreverse) func(j);
+                flbg=false;
+                break;
+            }
         }
+        if(flbg&&isreverse){
+            func(j);
+        }
+    }
+};
+window.chooseFull=function(func,isreverse){
+    if(isreverse===undefined) isreverse=false;
+    for(let j in info){
+        let flag=info[j][info[j].length-1]>=info[j][info[j].length-2];
+        if(flag){
+            if(!isreverse) {
+                func(j);
+            }
+        }
+        else if(isreverse) func(j);
     }
 };
 window.elect=function (arr) {
@@ -194,3 +229,119 @@ window.send=function (url) {
     };*/
     zzz.fetch.create(url,{cors:true});
 };
+window.addClass=function(arr){
+    desiredClass[desiredClass.length]=arr;
+    window.localStorage["desired"]=JSON.stringify(desiredClass);
+};
+window.select=function (e) {
+    var ele=e.target||e.srcElement;
+    var par=ele.parentElement;
+    if(par.tagName.toLowerCase()!=="tr"){
+        ele=par;
+        par=ele.parentElement;
+    }
+    if(par.firstElementChild===ele) {
+        var v = par.value;
+        if(v===undefined) return;
+        var check=confirm("'" + info[v].join("','") + "'");
+        if(check){
+            addClass(info[v]);
+        }
+    }
+};
+window.confirmSelect=function(stuName,courseName,classNo,onlySupp,index,seqNo,freshFlag,limitedNbr) {
+    if(freshFlag){
+        var refreshUrl2 = "return confirmSelect('"+stuName+"','"+courseName+"','"+classNo+"',"+onlySupp+",'"+index+"','"+seqNo+"',false,'"+limitedNbr+"');";
+        window.refreshLimit(stuName,courseName,classNo,onlySupp,index,seqNo,limitedNbr,refreshUrl2);
+        return false;
+    }else{
+        if(window.validate()===false) return false;
+        return true;
+    }
+};
+window.validate=function() {
+    var valid=false;
+    $.ajax({
+        url: "/elective2008/edu/pku/stu/elective/controller/supplement/validate.do",
+        type: "post",
+        data: "validCode=" + code.value||code.innerText,
+        dataType: "json",
+        async: false,
+        success:function (data) {
+            valid=data.valid==2;
+            if(!valid){
+                code.previousElementSibling.innerText="错了";
+            }
+        },
+        fail:function (data) {
+            code.previousElementSibling.innerText="断网了";
+        }
+    });
+    return valid;
+};
+window.hideall=function(hid){
+    var hide=function (e) {elements[e].style.display="none";};
+    var show=function (e) {elements[e].style.display="table-row";};
+    if(hid){
+        choose(hide,true);
+        chooseFull(hide);
+    }
+    else{
+        choose(show,true);
+        chooseFull(show);
+    }
+    status_hide=hid;
+};
+window.transparent=function(tp){
+    var trans=function (e) {elements[e].style.opacity=parseFloat(getComputedStyle(elements[e])["opacity"])-0.3;};
+    var show=function (e) {elements[e].style.opacity=parseFloat(getComputedStyle(elements[e])["opacity"])+0.3;};
+    if(tp) choose(trans,true);
+    else choose(show,true);
+};
+table.onclick=select;
+var status_hide=false;
+var transparent_count=0;
+zzz.get.cls("subTitle").innerText="显示/隐藏满的与不要的";
+zzz.get.cls("pkuportal-remark").innerHTML="       增减透明度                              ";
+zzz.get.cls("subTitle").onclick=function (){hideall(!status_hide)};
+zzz.get.cls("pkuportal-remark").onclick=function () {
+    transparent((transparent_count%6)<3);
+    transparent_count++;
+};
+var append=function(e,s){
+    for(let i in s) e[i]=s[i];
+};
+window.toptable=code.parentElement.parentElement.parentElement.parentElement
+append(toptable.style,{
+    position:"fixed",
+    backgroundColor:"rgba(255,255,255,0.6)",
+    top:0,
+    left:0
+});
+append(zzz.get.id("validCodeImg").previousElementSibling.style,{
+   position:"fixed",
+   left:"0",
+    top:"30px",
+    backgroundColor:"rgba(255,255,255,0.9)"
+});
+append(validImg.style,{
+    position: "fixed",
+    left:"10px",
+    top:"50px",
+    opacity:"0.9",
+    width:"100px"
+});
+append(document.getElementsByClassName("errmsg")[1],{
+   innerHTML:"&nbsp;&nbsp;&nbsp;&nbsp;刷新",
+   onclick:function () {
+        location.replace("https://elective.pku.edu.cn/elective2008/edu/pku/stu/elective/controller/supplement/electSupplement.do");
+   }
+});
+try {
+    var b=toptable.firstElementChild.firstElementChild.firstElementChild;
+    append(b.nextElementSibling.style,{
+        textAlign: "left"
+    });
+}catch(e){}
+
+hideall(!status_hide);
