@@ -4,7 +4,10 @@
   
 > 缓慢更新中，预期是半年一更。  
 
-> 文件：可以直接使用bundle.js，或者先运行zzz.js，后运行ElectEnhancement.js，代码是一样的。
+> 文件：可以直接使用bundle.js，或者先运行zzz.js，后运行ElectEnhancement.js，代码是一样的。  
+
+效果图：
+![effect.png](effect.png)
   
 **2020/2春季学期**  
 > 增加了淡化与隐藏功能  
