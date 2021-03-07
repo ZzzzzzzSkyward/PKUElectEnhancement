@@ -2084,7 +2084,7 @@ function init_elect() {
     beautifyClass();
     refreshClass();
     code.focus();
-    if (zzz.storage.get("willHide")) hideButton.click();
+    if (zzz.storage.json("willHide")) hideButton.click();
 }
 
 window.page_url = zzz.path.split(zzz.browser.uri);
