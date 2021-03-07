@@ -1501,11 +1501,8 @@ zzz.init = function () {
     zzz.storage.init();
     zzz.incidence.init();
     zzz.browser.init();
-    zzz.message.init();
     zzz.paint.init();
     zzz.fetch.init();
-    zzz.api.update.url["zzz"] = ["https://ZzzzzzzSkyward.github.io/main/update.js"];
-    zzz.api.update.current["zzz"] = zzz.version;
     zzz.inited = true;
     try {
         window.zzzloaded && window.zzzloaded();
