@@ -1938,8 +1938,8 @@ window.delClass = function (id) {
 window.refreshStorage = function () {
     //去除重复
     let a=new Set(desiredClass);
-    let newClass=[];
-    for(let i of a) newClass.push(i);
+    desiredClass=[];
+    for(let i of a) desiredClass.push(i);
     zzz.storage.set("desired", JSON.stringify(desiredClass));
 };
 window.refreshClass = function () {
