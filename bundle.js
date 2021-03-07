@@ -6,6 +6,8 @@
 // @grant        none
 // ==/UserScript==
 "use strict";
+window.pku_user_name = "";//此处填写用户名
+window.pku_user_password = "";//此处填写密码
 if (!window.zzz) window.zzz = {};
 zzz.version = 20201114;
 if (!zzz.value) zzz.value = {};
@@ -1674,24 +1676,14 @@ zzz.value.hex=function(character){
 };
 zzz.init();
 
-
-
-
-//自动登录
-window.pku_user_name = "";
-window.pku_user_password = "";
-//头
 window.headers = {
     accept: "application/json, text/javascript, */*; q=0.01",
     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
     origin: "https://elective.pku.edu.cn",
     "X-Requested-With": "XMLHttpRequest"
 };
-//建立存储
 if (!zzz.storage.json("desired")) zzz.storage.set("desired", "[]");
-//读取想要的课程列表
 window.desiredClass = zzz.storage.json("desired");
-//简便写法
 window.hideIt = function (e) {
     zzz.set.style(e, "display", "none");
     return hideIt;
@@ -1794,12 +1786,12 @@ window.getClass = function () {
                     e = zzz.incidence.interpret(e);
                     var element = goToClass(e.target).children[1].firstElementChild;
                     var id = element.href.match(/BZ[0-9_]+$/)[0];
-                    var name = elemet.innerText;
+                    var name = element.innerText;
                     console.log(id);
                     let included = desiredClass.find(function (x) {
-                        return x.id === id;
+                        return x === id;
                     });
-                    if (confirm(included ? "不要" : "想要" + name + "么")) included ? delClass(id) : addClass(id);
+                    if (confirm((included ? "不要" : "想要") + name + "么")) included ? delClass(id) : addClass(id);
                 });
             }
             //如果是教师，则删除头衔
@@ -1944,6 +1936,10 @@ window.delClass = function (id) {
     refreshClass();
 };
 window.refreshStorage = function () {
+    //去除重复
+    let a=new Set(desiredClass);
+    let newClass=[];
+    for(let i of a) newClass.push(i);
     zzz.storage.set("desired", JSON.stringify(desiredClass));
 };
 window.refreshClass = function () {
