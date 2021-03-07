@@ -1,9 +1,7 @@
 // ==UserScript==
 // @name         PKU Elective Enhancement
 // @namespace    elective
-// @version      0
 // @description  enhance the page
-// @author       None
 // @match        https://elective.pku.edu.cn/*
 // @match        https://iaaa.pku.edu.cn/*
 // @grant        none
@@ -126,12 +124,12 @@ window.getClass = function () {
                     e = zzz.incidence.interpret(e);
                     var element = goToClass(e.target).children[1].firstElementChild;
                     var id = element.href.match(/BZ[0-9_]+$/)[0];
-                    var name = elemet.innerText;
+                    var name = element.innerText;
                     console.log(id);
                     let included = desiredClass.find(function (x) {
-                        return x.id === id;
+                        return x === id;
                     });
-                    if (confirm(included ? "不要" : "想要" + name + "么")) included ? delClass(id) : addClass(id);
+                    if (confirm((included ? "不要" : "想要") + name + "么")) included ? delClass(id) : addClass(id);
                 });
             }
             //如果是教师，则删除头衔
@@ -276,6 +274,10 @@ window.delClass = function (id) {
     refreshClass();
 };
 window.refreshStorage = function () {
+    //去除重复
+    let a=new Set(desiredClass);
+    let newClass=[];
+    for(let i of a) newClass.push(i);
     zzz.storage.set("desired", JSON.stringify(desiredClass));
 };
 window.refreshClass = function () {
