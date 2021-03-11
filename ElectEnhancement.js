@@ -46,13 +46,14 @@ window.tableTitle = [];
 window.toptable = zzz.create("div", {id: "toptable"}, {
     position: "fixed",
     display: "flex",
-    top: (zzz.storage.get("x") || "0") + "px",
-    left: (zzz.storage.get("y") || "0") + "px",
+    top: (zzz.storage.get("y") || "0") + "px",
+    left: (zzz.storage.get("x") || "0") + "px",
     fontSize: "20px",
     backgroundColor: "hsla(0,0%,100%,0.34)",
     zIndex: 9999,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    flexDirection:"column"
 }, document.body);
 window.msg = zzz.create("p", {innerText: "这里是信息"}, {color: "red", fontWeight: "bold", transition: "all 0.1s linear"});
 window.add_opacity = false;
@@ -295,6 +296,19 @@ window.moveIt = function (e, element) {
         top: positionY + "px"
     });
 };
+//自动补选首个课程
+window.autoSelect=function(){
+    zzz.incidence.bind(code,"change",function () {
+        classInfo.find(function (cls) {
+            if((cls.limit>cls.current)&&desiredClass.find(function (id) {
+                return id===cls.id;
+            })){
+                cls.button.click();
+                return true;
+            }
+        })
+    });
+};
 //美化页面
 window.beautify = function () {
     //增大字号
@@ -309,6 +323,9 @@ window.beautify = function () {
     transition:all 1s linear;
     padding:5px;
     background-color:rgba(240,250,250,0.8);
+    width:100%;
+    text-align:center;
+    margin:0;
     }
     #toptable p:hover{
     background-color:rgba(240,50,50,0.8);
@@ -360,13 +377,16 @@ window.beautify = function () {
     });
     window.refreshButton = addButton("刷新", fresh);
     //使顶端可移动
-    addButton("5秒内移动", function (e) {
+    addButton("移动", function (e) {
         zzz.incidence.bind(document.body, "mousemove", moveIt, false);
         zzz.time.loop(function () {
             zzz.incidence.erase(document.body, "mousemove", moveIt, false);
             zzz.storage.set("x", positionX);
             zzz.storage.set("y", positionY)
         }, 5000);
+    });
+    addButton("重登",function (e) {
+        location.replace("https://iaaa.pku.edu.cn/iaaa/oauth.jsp?appID=syllabus&appName=%E5%AD%A6%E7%94%9F%E9%80%89%E8%AF%BE%E7%B3%BB%E7%BB%9F&redirectUrl=http://elective.pku.edu.cn:80/elective2008/ssoLogin.do");
     });
     toptable.appendChild(msg);
 };
@@ -426,7 +446,6 @@ function init_elect() {
 }
 
 window.page_url = zzz.path.split(zzz.browser.uri);
-console.log(page_url);
 //如果是已经补选成功的页面，则回退。
 if (page_url.path.match("electSupplement")) history.go(-1);
 //如果是补选失败的页面，直接重新登录。
@@ -440,6 +459,10 @@ else if (page_url.path === "/iaaa/oauth.jsp" || page_url.path === "/elective2008
         if (window.pku_user_password) zzz.get.id("password").value = window.pku_user_password;
         if (getv(zzz.get.id("user_name")) && getv(zzz.get.id("password"))) window.oauthLogon();
     }, 100);
+}
+//自动进入补退选界面
+else if(page_url.path === "/elective2008/edu/pku/stu/elective/controller/help/HelpController.jpf"){
+    location.replace("/elective2008/edu/pku/stu/elective/controller/supplement/SupplyCancel.do");
 }
 //如果不是补选页面，则不执行
 else {
