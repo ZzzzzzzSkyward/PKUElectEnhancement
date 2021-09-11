@@ -5,6 +5,7 @@
 > 缓慢更新中，预期是半年一更。  
 
 > 文件：可以直接使用bundle.js，或者先运行zzz.js，后运行ElectEnhancement.js，代码是一样的。请使用可运行用户脚本/javascript的浏览器，并复制代码。  
+> 2021.09更新了ElectEnhancement2021.9.js  
 
 效果图：
 ![effect.png](effect.png)
