@@ -1,9 +1,8 @@
 // ==UserScript==
 // @name         PKU Elective Enhancement
 // @namespace    elective
-// @version      2021.03
+// @version      2021.09
 // @description  enhance the page
-// @author       None
 // @match        https://elective.pku.edu.cn/*
 // @match        https://iaaa.pku.edu.cn/*
 // @grant        none
@@ -12,7 +11,10 @@
 //自动登录
 window.pku_user_name = "";
 window.pku_user_password = "";
+//页面url
 window.page_url = zzz.path.split(zzz.browser.uri);
+//刷新时间
+window.lastRefreshed = new Date();
 //头
 window.headers = {
     accept: "application/json, text/javascript, */*; q=0.01",
@@ -205,12 +207,25 @@ window.fresh = function () {
 window.confirmSelect = function (xh, stuName, courseName, classNo, onlySupp, index, seqNo, freshFlag, limitedNbr) {
     if (freshFlag) {
         var refreshUrl2 = "return confirmSelect('" + xh + "','" + stuName + "','" + courseName + "','" + classNo + "'," + onlySupp + ",'" + index + "','" + seqNo + "',false,'" + limitedNbr + "');";
-        window.refreshLimit(xh, stuName, courseName, classNo, onlySupp, index, seqNo, limitedNbr, refreshUrl2);
+        refreshLimit(xh, stuName, courseName, classNo, onlySupp, index, seqNo, limitedNbr, refreshUrl2);
         return false;
     } else if (onlySupp) {
-        sendMessage("退课的话，不可以的呢");
-        return false;
-    } else return window.validate(xh);
+        sendMessage("现在不可以退课的说");
+        return true;
+    }
+    if (!window.validate(xh)) return false;
+    //2021.09从supplement.js摘录
+    var no = "";
+    if (classNo != "")
+        no = "班号:" + classNo + "。";
+    //昌平区特别提示
+    var spmsg = "";
+    if ((seqNo == 'yjkc20140500014647' && classNo == '03') || (seqNo == 'yjkc20140500014647' && classNo == '04') ||
+        (seqNo == 'yjkc20210500039424' && classNo == '04') || (seqNo == 'yjkc20210800040364') || (seqNo == 'yjkc20210800040366')) {
+        spmsg = '该课程上课地点在昌平吉利校区。'
+    }
+    var msg = stuName + "同学,您确定要选《" + courseName + "》这门课程吗？" + no + spmsg + "\n";
+    return window.confirm(msg);
 };
 window.confirmSelectUnder = function (xh, stuName, courseName, classNo, onlySupp, index, seqNo, freshFlag, limitedNbr) {
     if (freshFlag) {
@@ -221,6 +236,12 @@ window.confirmSelectUnder = function (xh, stuName, courseName, classNo, onlySupp
 };
 window.refreshLimit = function (xh, stuName, courseName, classNo, onlySupp, index, seqNo, limitedNbr, refreshUrl2) {
     clearMsg(); // 清除提示信息
+    var currentTime = new Date();
+    var diff = zzz.time.convertFromDate(new Date() - lastRefreshed);
+    if (diff.minute == 0 && diff.second < 2) {
+        sendMessage("操作太快了");
+        return;
+    }
     var limitedNum = parseInt(limitedNbr);
     var xhr = zzz.fetch.ajax({
         url: "/elective2008/edu/pku/stu/elective/controller/supplement/refreshLimit.do",
@@ -442,7 +463,7 @@ window.beautify = function () {
         return e;
     };
     window.isHidden = false;
-    window.hideButton = addButton("隐藏课程", function (e) {
+    var hide = function (e) {
         if (isHidden)
             queryDesired(function () {}, function (cls) {
                 showIt(cls.element);
@@ -453,15 +474,17 @@ window.beautify = function () {
         isHidden = !isHidden;
         hideButton.innerText = isHidden ? "显示课程" : "隐藏课程";
         zzz.storage.set("willHide", isHidden);
-    });
-    window.impactButton = addButton("紧凑模式", function (e) {
+    };
+    window.hideButton = addButton("隐藏课程", hide);
+    var impact = function (e) {
         var b = !zzz.storage.json("impact");
         for (var i of document.querySelectorAll(".datagrid span")) {
             zzz.set.style(i, "maxHeight", b ? "1em" : "10em");
         }
         zzz.storage.set("impact", b);
-        window.impactButton.innerText=b?"紧凑":"展开";
-    })
+        window.impactButton.innerText = b ? "紧凑" : "展开";
+    };
+    window.impactButton = addButton("紧凑模式", impact);
     window.refreshButton = addButton("刷新", fresh);
     //使顶端可移动
     addButton("移动", function (e) {
@@ -476,6 +499,9 @@ window.beautify = function () {
         relogin();
     });
     toptable.appendChild(msg);
+    //从存储中读取数据
+    if (zzz.storage.json("impact")) impact();
+    if (zzz.storage.json("willHide")) hide();
 };
 window.beautifyClass = function () {
     //创建固定顶端
@@ -510,16 +536,48 @@ window.beautifyClass = function () {
             tongZhiFlag = false;
         }
     }
-
 };
-window.init_count = 5;
+window.lazy = {
+    funcs: {},
+    time:2000,
+    register: function (name, func) {
+        if (!this.funcs[name]) {
+            this.funcs[name] = {};
+            var t = this.funcs[name];
+            t.func = func;
+            t.name = name;
+        }
+        t.time = new Date();
+        this.tick(name);
+    },
+    tick:function(name){
+        setTimeout(function(){lazy.run(name);},2*1000);
+    },
+    run:function(name){
+        if(this.funcs[name]){
+            var diff=new Date()-this.funcs[name].time;
+            if(diff<lazy.time) return;
+            this.funcs[name].func();
+            this.funcs[name].time=new Date();
+        }
+    }
+}
+window.autoSubmit = function () {
+    beautify();
+    var form = zzz.get.id("qyForm");
+    if (!form) return;
+    for(let i of form.getElementsByTagName("input")){
+        if(i.type=="radio")
+        zzz.incidence.bind(i,"click",function(){lazy.register(i.id,function(){zzz.get.id("b_query").click();});});
+        else if(i.type=="text")
+        zzz.incidence.bind(i,"change",function(){lazy.register(i.id,function(){zzz.get.id("b_query").click();});});
+    }
+}
 
 function init_elect() {
-    init_count--;
-    if (!init_count) return;
     tables = zzz.get("table");
     if (!tables) {
-        zzz.time.loop(init_elect, 1000);
+        zzz.time.tick(init_elect, 1000);
         return;
     }
     console.log("elect enhancement running!");
@@ -527,9 +585,8 @@ function init_elect() {
     validImg = zzz.get.id("imgname");
     getClass();
     beautify();
-    if (zzz.storage.json("impact")) impactButton.click();
+    beautifyClass();
     refreshClass();
-    if (zzz.storage.json("willHide")) hideButton.click();
     try {
         code.focus();
         autoSelect();
@@ -545,13 +602,18 @@ function init_elect() {
     };
 }
 
+function queryPath(regstr) {
+    return page_url.path.search(regstr) !== -1;
+}
 //如果是已经补选成功的页面，则回退。
 //经测试，该条件不可用，因为会影响到时间冲突返回页面
 //if (page_url.path.match("electSupplement")) history.go(-1);
 //如果是补选失败的页面，直接重新登录。
 if (zzz.get.tag("strong").length && zzz.get.tag("strong")[0].innerText === "提示:") relogin();
-if (page_url.path.search("supplement") !== -1) window.shouldMove = true;
-if (page_url.path.search("electiveWork|electivePlan|supplement|courseQuery") !== -1) init_elect();
+if (queryPath("supplement")) window.shouldMove = true;
+if (queryPath("electiveWork|electivePlan|supplement")) init_elect();
+//如果是添加界面，则注册事件
+else if (queryPath("CourseQueryController|getCurriculmByForm")) autoSubmit();
 //如果是登录界面，则自动登录
 else if (page_url.path === "/iaaa/oauth.jsp" || page_url.path === "/elective2008/logout.do") {
     //等待以载入
