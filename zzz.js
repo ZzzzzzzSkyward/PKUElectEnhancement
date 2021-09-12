@@ -1,4 +1,4 @@
-/*
+﻿/*
 version:1.2
 time:2020.11.14
 author:zzs
@@ -7,6 +7,206 @@ author:zzs
 if(!window.zzz) window.zzz={};
 zzz.version=20201114;
 if(!zzz.value) zzz.value={};
+if(!zzz) window.zzz={};
+if(!zzz.value) zzz.value={};
+if(zzz.value.inited) throw new Error("zzz.value re-init!");
+zzz.value.ajaxinfo={
+    100:"客户必须继续发出请求",
+    101:"客户要求服务器根据请求转换HTTP协议版本",
+    200:"交易成功",
+    201:"提示知道新文件的URL",
+    202:"接受和处理、但处理未完成",
+    203:"返回信息不确定或不完整",
+    204:"请求收到，但返回信息为空",
+    205:"服务器完成了请求，用户代理必须复位当前已经浏览过的文件",
+    206:"服务器已经完成了部分用户的GET请求",
+    300:"请求的资源可在多处得到",
+    301:"删除请求数据",
+    302:"在其他地址发现了请求数据",
+    303:"建议客户访问其他URL或访问方式",
+    304:"客户端已经执行了GET，但文件未变化",
+    305:"请求的资源必须从服务器指定的地址得到",
+    306:"前一版本HTTP中使用的代码，现行版本中不再使用",
+    307:"申明请求的资源临时性删除",
+    400:"错误请求，如语法错误",
+    401:"请求授权失败",
+    402:"保留有效ChargeTo头响应",
+    403:"请求不允许",
+    404:"没有发现文件、查询或URl",
+    405:"用户在Request-Lne字段定义的方法不允许",
+    406:"根据用户发送的Accept拖，请求资源不可访问",
+    407:"类似401，用户必须首先在代理服务器上得到授权",
+    408:"客户端没有在用户指定的饿时间内完成请求",
+    409:"对当前资源状态，请求不能完成",
+    410:"服务器上不再有此资源且无进一步的参考地址",
+    411:"服务器拒绝用户定义的Content-Length属性请求",
+    412:"一个或多个请求头字段在当前请求中错误",
+    413:"请求的资源大于服务器允许的大小",
+    414:"请求的资源URL长于服务器允许的长度",
+    415:"请求资源不支持请求项目格式",
+    416:"请求中包含Range请求头字段，在当前请求资源范围内没有range指示值，请求也不包含f-Range请求头字段",
+    417:"服务器不满足请求Expect头字段指定的期望值，如果是代理服务器，可能是下一级服务器不能满足请求",
+    500:"服务器产生内部错误",
+    501:"服务器不支持请求的函数",
+    502:"服务器暂时不可用，有时是为了防止发生系统过载",
+    503:"服务器过载或暂停维修",
+    504:"关口过载，服务器使用另一个关口或服务来响应用户，等待时间设定值较长",
+    505:"服务器不支持或拒绝支请求头中指定的HTTP版本"
+};
+zzz.value.fontFamily={
+    1:{ch:"宋体",en:"SimSun"},
+    2:{ch:"黑体",en:"SimHei"},
+    3:{ch:"微软雅黑",en:"Microsoft Yahei"},
+    4:{ch:"楷体",en:"KaiTi"},
+    5:{ch:"新宋体",en:"NSimSun"},
+    6:{ch:"仿宋",en:"FangSong"},
+    7:{ch:"华文黑体",en:"STHeiti"},
+    8:{ch:"华文楷体",en:"STKaiti"},
+    9:{ch:"华文宋体",en:"STSong"},
+    10:{ch:"华文仿宋",en:"STFangsong"},
+    11:{ch:"华文中宋",en:"STZhongsong"},
+    12:{ch:"华文琥珀",en:"STHupo"},
+    13:{ch:"华文新魏",en:"STXinwei"},
+    14:{ch:"华文隶书",en:"STLiti"},
+    15:{ch:"华文行楷",en:"STXingkai"},
+    16:{ch:"隶书",en:"LiSu"},
+    17:{ch:"华文细黑",en:"STXihei"},
+    18:{ch:"方正舒体",en:"FZShuTi"},
+    19:{ch:"方正姚体",en:"FZYaoti"},
+    20:{ch:"方正报宋简体",en:"FZBaoSong-Z04S"},
+    21:{ch:"方正报宋简体",en:"FZBaoSong-Z04S"},
+    22:{ch:"方正报宋简体",en:"FZBaoSong-Z04S"},
+    23:{ch:"方正报宋简体",en:"FZBaoSong-Z04S"},
+    24:{ch:"方正报宋简体",en:"FZBaoSong-Z04S"},
+    25:{ch:"方正报宋简体",en:"FZBaoSong-Z04S"},
+    26:{ch:"方正报宋简体",en:"FZBaoSong-Z04S"},
+};
+zzz.value.event={
+    abort:"图像加载中断"
+    ,blur:"失去焦点"
+    ,change:"内容改变"
+    ,click:"单击"
+    ,dblclick:"双击"
+    ,error:"文档、图像加载出错"
+    ,focus:"获得焦点"
+    ,keydown:"按下键"
+    ,keypress:"按住键"
+    ,keyup:"松开键"
+    ,load:"文档、图像加载完成"
+    ,mousedown:"鼠标按下"
+    ,mousemove:"鼠标移动"
+    ,mouseout:"鼠标移出元素"
+    ,mouseover:"鼠标移到元素上"
+    ,mouseup:"鼠标松开"
+    ,resize:"调整尺寸"
+    ,select:"选中文本"
+    ,submit:"提交"
+    ,unload:"关闭页面"
+    ,visibilitychange:"页面可视性AP"
+    //HTML 5
+    ,drag:"拖动元素"
+    ,dragend:"拖动结束"
+    ,dragenter:"拖入"
+    ,dragleave:"拖出"
+    ,dragover:"在元素内部拖动"
+    ,dragstart:"拖动开始"
+    ,drop:"放下元素"
+    //wheel event
+    ,scroll:"鼠标滚轮滚动"
+    //media event
+    ,pause:"暂停"
+    ,play:"播放"
+    ,progress:"获取数据"
+    ,ratechange:"速率改变"
+    ,readystatechange:"准备就绪"
+    ,stalled:"无法获取数据"
+    ,timeupdate:"跳转"
+    ,volumechange:"改变音量"
+    ,waiting:"开始等待缓冲"
+    //fullscreen API
+    ,fullscreenchange:"全屏开启或退出"
+    ,fullscreenerror:"设置全屏出错"
+};
+zzz.value.validCharacter="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+zzz.value.ChineseNumber="零一二三四五六七八九十百千万亿点";
+zzz.value.ChineseNumberBig="零壹贰叁肆伍陆柒捌玖拾佰仟萬亿點";
+zzz.value.zero="0".charCodeAt(0);
+zzz.value.a="a".charCodeAt(0);
+zzz.value.A="A".charCodeAt(0);
+zzz.value.keyCode= {
+    1:"leftbutton",
+    2:"rightbutton",
+    4:"middlebutton",
+    8:"backspace",
+    9:"tab",
+    13:"enter",
+    16:"shift",
+    17:"ctrl",
+    18:"alt",
+    19:"pause",
+    20:"capslock",
+    27:"esc",
+    32:"blank",
+    33:"pageup",
+    34:"pagedown",
+    35:"end",
+    36:"home",
+    37:"leftarrow",
+    38:"uparrow",
+    39:"rightarrow",
+    40:"downarrow",
+    44:"printscreen",
+    45:"insert",
+    46:"delete",
+    91:"winl",
+    92:"winr",
+    106:"*num",
+    107:"+num",
+    109:"-num",
+    110:".num",
+    111:"/num",
+    144:"numlock",
+    145:"scrolllock",
+    160:" ",
+    186:";",
+    187:"=",
+    188:",",
+    189:"-",
+    190:".",
+    191:"/",
+    192:"`",
+    219:"[",
+    220:"\\",
+    222:"'"
+};
+zzz.value.convertTokey=function (code) {
+    if(code>=48&&code<=57) return code-48+"";
+    else if(code>=65&&code<=90) return String.fromCharCode(code+32);
+    else if(code>=96&&code<=105) return code-96+"num";
+    else if(code>=112&&code<=123) return "F"+(code-111);
+    else if(code in zzz.value.keyCode) return zzz.value.keyCode[code];
+    else return String.fromCharCode(code);
+};
+zzz.value.init=function(){
+    zzz.value.inited=true;
+};
+zzz.value.storage={
+    defaultExpire:60*60*24
+};
+zzz.value.style={
+    short: {
+        bg: "background",
+        ft: "font-size",
+        bd:"border",
+        mg:"margin",
+        pd:"padding",
+        box:"box-shadow",
+        bgc:"background-color",
+        bgimg:"background-image"
+    }
+
+};
+zzz.value.init();
 if(zzz.inited) throw new Error("zzz re-init!");
 //eval
 zzz.eval=function(string){
@@ -1994,145 +2194,7 @@ zzz.anim.scroll={
         element.scrollIntoView(isSmooth);
     }
 };
-
-//editor API
-//author ： zzs
-zzz.editor={
-    enable:function () {
-        var n=zzz.get.id("main").childNodes;
-        for(var i in n){
-            if(!(n[i] instanceof HTMLElement)) continue;
-            zzz.incidence.drag.enable(n[i]);
-            zzz.incidence.edit.enable(n[i]);
-            zzz.incidence.bind(n[i],"scroll",function (e) {
-                var data=zzz.incidence.interpret(e);
-                zzz.appendAttr(data.target.style,"fontSize",zzz.toNum(zzz.get.style(data.target,"fontSize"))+data.delta+"px");
-                e.preventDefault();
-                return false;
-            })
-        }
-
-    }
-};
-
-//web connection API
-zzz.web={
-  status:{
-      wifi:false,
-      web:false,
-      foreign:false,
-      local:false,
-      temp:false
-  },
-    init:function(){
-      this.test("wifi");
-      this.test("web");
-      this.test("foreign");
-      this.test("local");
-    },
-  test:function(type,func){
-      if(type==="local"){
-          zzz.web.status.local=zzz.browser.protocol==="file:";
-      }
-      else if(type==="wifi"){
-
-      }
-      else if(type==="foreign"||type==="web"){
-          for(let i of zzz.value[type]){
-              let count=0;
-              zzz.web.test(i,function (result) {
-                  if(count===zzz.value[type].length) func(false);
-                  if(count===zzz.value[type].length+1) return;
-                  if(result===true){
-                      count=zzz.value[type].length+1;
-                      func(true);
-                      return;
-                  }
-                  else count++;
-              });
-          }
-      }
-      else{
-          //common url
-          let executed=false;
-          zzz.fetch.cors(type,"img",null,function (node) {
-            if(!node) return;
-            if(executed) return;
-            executed=true;
-            if(node.complete===true) func(true);
-            else func(false);
-          });
-      }
-  }
-};
-
 zzz.api={};
-//bing wallpaper API
-//https://github.com/xCss/bing
-//TODO : get more usable site.
-zzz.api.bingWallpaper={
-    rand:function (w,h) {
-      if(!w) w=zzz.browser.screenX;
-      if(!h) h=zzz.browser.screenY;
-        return "https://bing.ioliu.cn/v1/rand?w="+w.toString()+"&h="+h.toString();
-    },
-    get:function (w,h,d) {
-        if(!w) w=zzz.browser.screenX;
-        if(!h) h=zzz.browser.screenY;
-        if(!d) d=0;
-        var getText=function () {
-            if(this.executed) return;
-            if(!this.node) return;
-            this.executed=true;
-            var returnText=this.node.innerHTML;
-            zzz.value.bingWallpaper=returnText;
-        };
-        zzz.fetch.cors("https://cn.bing.com/HPImageArchive.aspx?format=xml&idx="+d.toString()+"&n=1","img",null,getText);
-    }
-};
-
-//translation API
-//source:baidu
-zzz.api.translation={
-    getURL:function (engine,text,fromLanguage,toLanguage,id,token) {
-        var result="";
-        result+=zzz.value.translation.engine[engine];
-        result=result.replace("{text}",text);
-        result=result.replace("{fromLanguage}",fromLanguage);
-        result=result.replace("{toLanguage}",toLanguage);
-        result=result.replace("{token}",token);
-        result=result.replace("{id}",id);
-        var salt=zzz.random.int(1,100000000);
-        result=result.replace("{salt}",salt.toString());
-        if(engine==="baidu")
-        result=result.replace("{sign}",zzz.code.md5(id+text+salt.toString()+token));
-        else if(engine==="youdao") {
-            let input =text.length<=20?text:(text.slice(0,10)+text.length.toString()+text.slice(text.length-10,text.length));
-            let time=Math.round(new Date().getTime()/1000);
-            result=result.replace("{time}",time);
-            result = result.replace("{sign}", zzz.code.sha256(id + input +salt+time.toString()+token.toString()))
-        }
-        return result;
-    },
-    translate:function(text,func,engine,fromLanguage,toLanguage){
-        if(!text||text.length===0) return "";
-        if(!engine||!zzz.value.translation.engine[engine]) engine=zzz.value.translation.default.engine;
-        if(!toLanguage) toLanguage=zzz.value.translation.default.to;
-        if(!fromLanguage) fromLanguage="auto";
-        let url=zzz.api.translation.getURL(engine,text,fromLanguage,toLanguage,zzz.value.translation.id[engine],zzz.value.translation.token[engine]);
-        let unpack=function(response){
-            if(zzz.fetch.judge(response)==="success") {
-                let pack = response.trans_result || [response.translation];
-                console.log(pack);
-                func(pack[0]);
-            }
-            else if(zzz.fetch.judge(response)==="fail") warn("translation unavailable");
-        };
-        console.log(url);
-        zzz.fetch.get(url,unpack);
-    }
-};
-
 //update API
 //format:
 //name:[urls]
@@ -2393,608 +2455,6 @@ zzz.string={
       return index;
     }
 };
-
-//unicode translator
-zzz.api.unicode={
-  translate:function (code) {
-    return String.fromCharCode(code);
-  },
-  search:function(name,dict){
-      if(dict[name]!==undefined) return dict[name];
-      else{
-          var minDistance=999999,temp,minPosition="";
-          for(var i in dict){
-              temp=zzz.string.first_letter_algorithm(name,i);
-              if(temp<minDistance){
-                minDistance=temp;
-                minPosition=i;
-              }
-          }
-          if(minPosition!=="") return dict[minPosition];
-          else return null;
-      }
-  }
-};
-
-//steam cdkey register api
-//info:
-//if purchase_result_details= 15, the cdkey is used.
-//if 14, invalid
-//if 53, unavailable(blocked by steam)
-zzz.api.steam={
-    buffer:[],
-    queue:[],
-    index:0,
-    queue_index:0,
-    id:window.g_sessionID||"",
-    onsend:false,
-    hasSucceeded:false,
-    register:function (cdk) {
-        if(zzz.api.steam.hasSucceeded) return;
-        if (!cdk) return;
-        if (!zzz.api.steam.id) zzz.api.steam.id=window.g_sessionID||"";
-        zzz.api.steam.send(cdk);
-    },
-    send:function(c){
-        var short=zzz.api.steam;
-        fetch("https://store.steampowered.com/account/ajaxregisterkey/",
-            {
-                body: "product_key=" + c + "&sessionid=" + short.id,
-                method: "POST",
-                headers: {
-                    'Content-type': "application/x-www-form-urlencoded;charset=UTF-8"
-                }
-            }
-            ).then(function (res) {
-                var result={};
-                try{
-                    result=res.json();
-                }catch(e){
-                    result={};
-                    zzz.api.steam.hasSucceeded=true;
-                }
-                return result;
-        }).then(function (res) {
-            console.log(res.success===1);
-            if(res.success===1||res.purchase_result_details===15||res.purchase_result_details===53){
-                zzz.api.steam.hasSucceeded=true;
-            }
-        });
-    },
-    batch:function (cdk_string) {
-        var short=zzz.api.steam,j=0;
-        short.queue=cdk_string.split("\n");
-        for(let i of short.queue){
-            i=i.trim();
-            if(i.length===17&&(i.search(/[^0-9a-zA-Z\?\-]/)===-1)) {
-                setTimeout(function () {
-                    zzz.api.steam.cope(i);
-                }, zzz.down(j) * 8000);
-                j++;
-                j+=zzz.random();
-            }
-        }
-    },
-    cope:function(str){
-        zzz.api.steam.hasSucceeded=false;
-        for(let j=0;j<=6;j++)
-            setTimeout(function (){zzz.api.steam.register(str.replace("?",j.toString()));},j*1000);
-    },
-    run:function () {
-        zzz.eval("zzz.api.steam.batch(`"+prompt("enter steam cdkeys")+"`);");
-    }
-};
-
-//baidu tieba API
-//only usable when domain is tieba.baidu.com
-//please initialize first
-zzz.api.tieba={
-    isTieba:false,
-    init:function () {
-        var domain = zzz.browser.host;
-        if(!zzz.value.tieba) zzz.value.tieba = {};
-        var short = zzz.value.tieba;
-        if ("tieba.baidu.com" === domain) zzz.api.tieba.isTieba = true;
-        else return;
-        short.text = zzz.get.id("ueditor_replace");
-        short.button = zzz.get.cls("ui_btn ui_btn_m j_submit poster_submit")[0];
-        short.posts = [];
-        zzz.api.tieba.getData();
-        zzz.api.tieba.analyze();
-    },
-    getData:function(){
-        var short=zzz.value.tieba;
-        if(!window.PageData) return;
-        short.forum=PageData.forum.forum_name;
-        short.fid=PageData.forum.forum_id;
-        short.page=PageData.pager.total_page;
-        short.current=PageData.pager.cur_page;
-        short.pid=zzz.browser.path.slice(3);
-    },
-    analyze:function(){
-        var short=zzz.value.tieba.posts;
-        var nodes=zzz.get.cls("l_post l_post_bright j_l_post clearfix");
-        var floor=1,index=0;
-        for(let i of nodes){
-            //ergodic
-            //data:[floor,element]
-            //if this floor is an advertisement, then ignore.
-            let isAd=false;
-            let info=i.getElementsByClassName("post-tail-wrap");
-            isAd=!info.length;
-            if(isAd) continue;
-            info=info[0].getElementsByClassName("tail-info");
-            for (let j of info) {
-                if (j.innerText.indexOf("楼") !== -1) {
-                    floor = zzz.toNum(j.innerText);
-                    break;
-                }
-            }
-            let contentElement=i.getElementsByClassName("d_post_content j_d_post_content")[0];
-            short[index]=[floor,i];
-            index++;
-        }
-    },
-    post:function (text) {
-        var short=zzz.value.tieba;
-        short.text.innerHTML=text;
-        short.button.click();
-    },
-    emoji:function(type){
-      var nodeText='<img pic_type="1" src="//tb2.bdstatic.com/tb/editor/images/face/i_f{type}.png?t=20140803" class="BDE_Smiley" onload="EditorUI.resizeImage(this, 560)" unselectable="on" width="30" height="30">';
-      return nodeText.replace("{type}",zzz.value.tieba.emoji(type)||"01");
-    },
-    replyFloor:function (floor,text) {
-        var short=zzz.value.tieba.posts;
-        if(floor<=1) return zzz.api.tieba.post(text);
-        else floor=Math.floor(floor);
-        if(isNaN(floor)) return;
-        var floorElement,i=floor-2;
-        //replace emoji
-        var index=text.search("{emoji:");
-        while(index!==-1){
-            let rightBorder=text.indexOf("}",index+1);
-            let emoji_name=text.slice(index+7,rightBorder).trim();
-            text=text.replace(/{emoji:.*?}/,zzz.api.tieba.emoji(emoji_name));
-            index=text.search("{emoji:");
-        }
-        for(;i<short.length;i++){
-            if(short[i][0]>=floor) break;
-        }
-        if(short[i][0]!==floor) throw new Error("tieba api replyFloor received non-existent floor param.");
-        var replyStatusElement=short[i][1].getElementsByClassName("j_lzl_r p_reply")[0].firstElementChild,replyStatus;
-        replyStatus=zzz.get.style(replyStatusElement,"display")!=="none";
-        //if there is no reply yet, we can safely reply to this floor
-        if(replyStatus){
-            replyStatusElement.click();
-            if(!zzz.get.id("j_editor_for_container")) replyStatusElement.click();
-        }
-        //else you should first click I say too button.
-        else{
-            var sayElement=short[i][1].getElementsByClassName("j_lzl_p btn-sub btn-small pull-right")[0];
-            sayElement.click();
-            if(!zzz.get.id("j_editor_for_container")) sayElement.click();
-            if(!zzz.get.id("j_editor_for_container")) sayElement.click();
-        }
-        var func=function(){
-            var txtPanel=zzz.get.id("j_editor_for_container");
-            if(!txtPanel) return;
-            txtPanel.innerHTML=text;
-            var button=zzz.get.cls("lzl_panel_submit j_lzl_p_sb")[0];
-            button.click();
-        };
-        setTimeout(func,10);
-    },
-    secret:function(text){
-        //only \n is changed
-        //read into lines
-        let arr=text.split("\n");
-        let changed_arr=[];
-        let changed_text="<p>";
-        //use secret charcter
-        for(let i of arr){
-            let changedTempText=i.split("").join(String.fromCharCode(zzz.value.unicode.empty_character[0]));
-            changed_arr.push(changedTempText);
-        }
-        changed_text+=changed_arr.join("</p><p>");
-        changed_text+="</p>";
-        return changed_text;
-    },
-    doSec:function (text) {
-        var result=zzz.api.tieba.secret(text);
-        var uid=zzz.random.string(5);
-        var node=document.body;
-        node.innerHTML+="<div id='"+uid+"' contenteditable='true'>"+result+"</div>";
-        var copyNode=zzz.get.id(uid);
-        if (document.createRange)
-        {
-            let element=copyNode;
-            let range = document.createRange();
-            range.selectNodeContents(copyNode);
-            range.setStart(element.childNodes[0], 0);
-            range.setEnd(element.lastElementChild,1);
-            let selection = window.getSelection();//获取当前选中区域
-            selection.removeAllRanges();//移出所有的选中范围
-            selection.addRange(range);//添加新建的范围
-        }
-        document.execCommand("copy");
-        document.body.removeChild(copyNode);
-    },
-    convertImg:function(url){
-        var short=zzz.value.tieba;
-        var new_url="http://tieba.baidu.com/photo/p?kw=" + zzz.code.path.encode(short.forum) + "&flux=1&tid=" + short.pid + "&pic_id=" + url.slice(url.lastIndexOf('/')+1,url.lastIndexOf(".")) + "&pn="+short.current+"&fp=2&see_lz=" + (short.see_lz||"0");
-        return new_url;
-    }
-};
-zzz.structure={
-    stack:function () {
-        return {
-            array:[],
-            index:0,
-            push:function (obj) {
-                this.array[this.index]=obj;
-                this.index++;
-            },
-            pop:function () {
-                if(this.index>0){
-                    this.index--;
-                    return this.array[this.index+1];
-                }
-                else return null;
-            },
-            top:function () {
-                return this.index?this.array[this.index-1]:null;
-            }
-        };
-    },
-    queue:function () {
-        return{
-            array:[],
-            index_left:0,
-            index_right:0,
-            push:function (obj) {
-                this.array[this.index_right]=obj;
-                this.index_right++;
-                if(this.index_left>100){
-                    for(var i=this.index_left;i<this.index_right;i++){
-                        this.array[i-this.index_left]=this.array[i];
-                    }
-                    this.index_right-=this.index_left;
-                    this.index_left=0;
-                }
-            },
-            pop:function () {
-                if(this.index_right>this.index_left) {
-                    this.index_left++;
-                    return this.array[this.index_left-1];
-                }
-                else return null;
-            },
-            top:function () {
-                return this.index_left<this.index_right?this.array[this.index_left]:null;
-            }
-        }
-    }
-};
-zzz.api.render={
-    readCommand:function(text){
-        var i=zzz.string.find(text,"\\[",0),j;
-        var command={};
-        var times=0,maxTimes=100;
-        while(i!==-1){
-            times++;
-            if(maxTimes<times) break;
-            j=zzz.string.find(text,"]",i+1);
-            if(j===-1){
-                console.log("cannot find ] in text"+text);
-                return;
-            }
-            let cmd=text.slice(i+1,j);
-            //if pure command
-            let index=cmd.indexOf("=");
-            if(index===-1){
-                if(cmd==="block"){}
-                else if(cmd==="follow"){
-                    command["follow"]=true;
-                }
-                //if simple class
-                else{
-                    command["className"]=cmd;
-                }
-            }
-            //format:[cmd]...
-            else if(cmd[0]==="["){
-
-            }
-            //normal case
-            else{
-                let attribute=cmd.slice(0,index),value=cmd.slice(index+1);
-                if(attribute==="style"){
-                    //format:[style=backgroundColor:rgba(1,1,1,0);filter:opacity(0.5) contrast(5);]
-                    if(!command.style) command["style"]={};
-                    zzz.addAttr(command.style,this.splitCSSText(value));
-                }
-                //other attributes
-                else{
-                    if(!command.attribute) command.attribute={};
-                    command.attribute[attribute]=value;
-                }
-            }
-            i=zzz.string.find(text,"\\[",j+1);
-        }
-        return command;
-    },
-    stringifyAttribute:function(key,value){
-        return " "+key+"='"+value+"'";
-    },
-    splitCSSText:function(text){
-        var result={};
-        for(let j of text.split(";")){
-            let k=j.indexOf(":"),key=j.slice(0,k).trim(),val=j.slice(k+1).trim();
-            let fullName=zzz.value.style.short[key];
-            if(fullName) result[fullName]=val;
-            else if(key) result[key]=val;
-        }
-        return result;
-    },
-    createTag:function(command){
-        var defaultTag=["<p>","</p>"];
-        if(!command) return defaultTag;
-        //start create <tag>
-        var begin="<",end="",attr={};
-        //default tag is <p>
-        begin+=command.tag||"p";
-        //add class to tag
-        if(command.className) attr["class"]=command.className;
-        //add attributes to tag
-        for(let i in attr){
-            begin+=this.stringifyAttribute(i,attr[i]);
-        }
-        if(command.attribute)
-            for(let i in command.attribute){
-                begin+=this.stringifyAttribute(i,command.attribute[i]);
-            }
-        //add style to tag
-        if(command.style){
-            let css="";
-            for(let key in command.style){
-                let val=command.style[key];
-                css+=zzz.string.line(key)+":"+val+";"
-            }
-            begin+=this.stringifyAttribute("style",css)
-        }
-        if(command.tag==="img"){
-            begin+="/";
-        }
-        else{
-            end="</"+(command.tag||"p")+">";
-        }
-        return [begin+">",end];
-    },
-    concatTags:function(tagSeries){
-        let begin="",end="";
-        for(let i of tagSeries){
-            begin+=i[0];
-            end=i[1]+end;
-        }
-        return [begin,end];
-    },
-    readText:function(text){
-        var i=-1, j=-1,i2=-1,j2=-1,k,cmd="",features={},tags=[],overwrite="";
-        var translation="";
-        var max_times=text.length;
-        //pre-run
-        i=zzz.string.find(text,"\\[",j2+1);
-        if(i===-1) i=text.length;
-        translation+=text.slice(0,i);
-        i--;
-        j=j2=i;
-        while(max_times--){
-            if(!max_times){
-                console.log("too many turns in zzz.api.render.readText");
-                break;
-            }
-            //move i and j
-            i2=i;
-            j2=j;
-            i=zzz.string.find(text,"\\[",j2+1);
-            j=zzz.string.find(text,"]",j2+1);
-            if(i===-1) i=text.length;
-            //quit
-            if(j===-1) break;
-            //copy text in between
-            //if(i!==-1) translation+=text.slice(j2+1,i);
-            //command
-            if(i!==text.length&&i<j){
-                cmd=text.slice(i+1,j);
-                let index=cmd.indexOf("=");
-                if(index===-1) index=cmd.length;
-                let key=cmd.slice(0,index),val=cmd.slice(index+1);
-                //end
-                if(key==="/"){
-                    if(tags){
-                        let tagText = this.concatTags(tags);
-                        translation += tagText[0] + (overwrite?overwrite:text.slice(j2 + 1, i))+tagText[1];
-                        tags = [];
-                        overwrite=false;
-                    }
-                    else translation+=text.slice(j2+1,i);
-                    i=j;
-                }
-                //font size
-                else if(key==="size"){
-                    tags.push(this.createTag({tag:"font",style:{fontSize:val+val.search(/[empxn]/)===-1?"em":""}}));
-                }
-                //hyperlink,a tag
-                else if(key==="link"||key==="a"){
-                    tags.push(this.createTag({tag:"a",attribute:{href:val}}));
-                }
-                //style
-                else if(key==="style"&&val){
-                    tags.push(this.createTag({tag:"font",style:this.splitCSSText(val)}));
-                }
-                //src
-                else if(new Set(['img','script','audio','video']).has(key)){
-                    tags.push(this.createTag({tag:key,src:val||""}))
-                }
-                //footnote
-                else if(key==="footnote"){
-                    let footnoteindex=this.footnote.add(val||" ");
-                    overwrite="["+footnoteindex[0]+"]";
-                    tags.push(this.createTag({tag:"a",attribute:{href:"#"+footnoteindex[1],class:"footnoteinnerindex"}}));
-                }
-                else if(key&&val){
-                    let attr={};
-                    attr[key]=val;
-                    tags.push(this.createTag({tag:"span",attribute:attr}));
-                }
-                //tag
-                else if((new Set(["i","u","b","sub","sup","del","pre"])).has(key))
-                    tags.push(this.createTag({tag:key}));
-                //plain text
-                else translation+=text.slice(i,j+1);
-            }
-            //tag text end
-            else if(j!==-1){
-                if(tags){
-                    let tagText = this.concatTags(tags);
-                    translation += tagText[0] + (overwrite?overwrite:text.slice(j2 + 1, j))+tagText[1];
-                    tags = [];
-                    overwrite=false;
-                    //copy the omitted text
-                    translation+=text.slice(j+1,i);
-                }
-                else translation+=text.slice(j2+1,i);
-                i--;
-                if(i>j) j=i;
-            }
-        }
-        //copy the text left
-        if(tags) {
-            let tagText = this.concatTags(tags);
-            translation += tagText[0] + text.slice(j2+1) + tagText[1];
-        }
-        else translation+=text.slice(j2+1);
-        return translation;
-    },
-    stringify:function(features,text){
-        var tag = this.createTag(features);
-        //in case the paragraph is empty.
-        return tag[0]+(text||" ")+tag[1];
-    },
-    toHTML:function (paragraph) {
-        var i=0;//index
-        var result="";
-        var cmd={},last={};
-        var tag=["",""];
-        for(;i<paragraph.length;i++){
-            //if it is command
-            //regulation:(1)#...........(2)//.........
-            if(paragraph[i][0]==="#"||paragraph[i].slice(0,2)==="//"){
-                cmd=this.readCommand(paragraph[i]);
-                //block
-                if(paragraph[i][1]==="#"||paragraph[i].slice(2,4)==="//"){
-                    if(paragraph[i].slice(0,4)==="##[/") continue;
-                    let end=i+1,depth=1,blockParagraph=[];
-                    while(depth&&end<paragraph.length){
-                        if(paragraph[end].slice(0,3)==="##[") depth+=paragraph[end][3]==="/"?-1:1;
-                        blockParagraph.push(paragraph[end]);
-                        end++;
-                    }
-                    let blockText=this.toHTML(blockParagraph);
-                    if(!cmd.tag) cmd.tag="div";
-                    if(!cmd.follow) last=cmd;
-                    else zzz.addAttr(last,cmd);
-                    result+=this.stringify(cmd,blockText);
-                    //correct the index
-                    i=end-1;
-                    //erase cmd
-                    cmd={};
-                }
-            }
-            //if it is text
-            else{
-                let translation=this.readText(paragraph[i]);
-                //execute the cmd .
-                //and inject text.
-                //clear command
-                if(!cmd.follow) last=cmd;
-                else zzz.addAttr(last,cmd);
-                result+=this.stringify(cmd,translation);
-                //erase current features
-                cmd={};
-            }
-        }
-        return result;
-    },
-    file:function(src){
-        //requirement:const essay={...,content:"..."}
-        //id:content
-        var xhr=zzz.fetch.ajax({url:src,async:false});
-        zzz.eval(xhr.responseText);
-        this.essay(window.essay);
-    },
-    essay:function (essay) {
-        try {
-            let titleText=this.text(essay.title);
-            if(essay.title) zzz.create("div", {innerHTML: titleText, className: "title"}, null, zzz.get.id("content"));
-            if(essay.author) zzz.create("div", {innerHTML: this.text(essay.author), className: "author"}, null, zzz.get.id("content"));
-            let renderedText=this.text(essay.content);
-            if(essay.content) zzz.get.id("content").innerHTML += renderedText;
-            if(titleText.footnote) zzz.get.id("content").innerHTML += titleText.footnote||"";
-            zzz.get.id("content").innerHTML += renderedText.footnote||"";
-        }
-        catch(e){
-            console.log(e);
-        }
-    },
-    text:function(str,cancelNote){
-        if(!str){
-            console.log("no text given to zzz.render.text");
-            return "";
-        }
-        var uid=zzz.random.string(10);
-        if(!cancelNote) this.footnote=this.createFootnote?this.createFootnote(uid):{};
-        var renderedText=new String(this.toHTML(str.split("\n")));
-        if(!cancelNote&&this.footnote.count) renderedText.footnote=this.footnote.render();
-        return renderedText;
-    },
-    adjustFontSize:function () {
-        let fontSize=zzz.browser.screenX/40;
-        zzz.get.id("content").style.fontSize=fontSize+"px";
-    },
-    createFootnote:function (uid) {
-        return {
-            count:0,
-            uid:uid,
-            note:[],
-            rd:function (t){return zzz.api.render.text(t,true)},
-            link:function(index){
-                if(index===undefined) index=this.count;
-                return "<a class='footnoteindex' name='"+this.uid+"footnote"+index+"'>"+index+"</a>";
-            },
-            href:function(index){
-                if(index===undefined) index=this.count;
-                return this.uid+"footnote"+index;
-            },
-            add:function (noteText) {
-                this.note.push(this.rd(noteText));
-                this.count++;
-                return [this.count,this.href()];
-            },
-            render:function () {
-                var index=0;
-                var result="";
-                for(let i of this.note){
-                    index++;
-                    result+="<div class='footnoteitem'>"+this.link(index)+i+"</div>";
-                }
-                return result;
-            }
-        }
-    }
-};
-
 //pku hole stars api
 zzz.api.hole={
     customizedClass:"stars",
@@ -3056,197 +2516,6 @@ zzz.run={
         }
     }
 };
-//downloader API
-zzz.api.download={
-    uniqueName:"download_url_display",
-    targetNode:document.head,
-    analyze:function(targetNode){
-        console.log(targetNode);
-        var result=[];
-        //valid type:image,video,audio
-        var validType=new Set(["img","video","audio"]);
-        var tag=targetNode.tagName.toLowerCase();
-        console.log(tag);
-        if(validType.has(tag)){
-            //download this node
-            result.push(targetNode.src);
-        }
-        else{
-            for(let i of validType.keys()) {
-                var node = targetNode.getElementsByTagName(i);
-                if(node){
-                    console.log(node);
-                    for(let j of node) result.push(j.src);
-                }
-            }
-        }
-        return result;
-    },
-    init:function () {
-        var node=zzz.create("div",{
-            id:zzz.api.download.uniqueName
-        },{
-            zIndex:"99999",
-            position:"fixed",
-            display:"block",
-            top:0,
-            left:0,
-            width:"100%",
-            height:"auto",
-            opacity:"0.9",
-            backgroundColor:"rgba(255,255,255,0.5)",
-            fontSize:"1em",
-            color:"black",
-            maxHeight:"500px",
-            overflowX:"hidden",
-            overflowY:"auto"
-        },document.body);
-        zzz.create("style",{innerText:"#"+zzz.api.download.uniqueName+" p{"+
-                "line-break:anywhere;"+
-                "max-height:1em;"+
-                "line-height:1em;"
-                +"}"},null,document.body);
-        /*zzz.incidence.bind(document.body,"mousemove",function (e) {
-            e=zzz.incidence.interpret(e);
-            zzz.api.download.targetNode=e.target;
-        });
-         */
-        zzz.incidence.bind(document.body,"keydown",zzz.api.download.display);
-    },
-    display:function (e) {
-        e=zzz.incidence.interpret(e);
-        zzz.api.download.targetNode=zzz.incidence.data.target;
-        if(e.key==="d"){
-            let result=zzz.api.download.analyze(zzz.api.download.targetNode);
-            let index=1;
-            if(result){
-                let text="";
-                for(let k of result){
-                    //text+="<p>"+index+"<a href='"+k+"' download>"+k+"</a></p>";
-                    text+="<p onclick='zzz.api.download.downloadByLocalMachine(this)'>"+k+"</p>";
-                    index++;
-                }
-                zzz.get.id(zzz.api.download.uniqueName).innerHTML=text;
-            }
-        }
-    },
-    downloadByLocalMachine:function(node){
-        var name=prompt("name=");
-        var url=node.innerText;
-        var isTieba=zzz.api.tieba.isTieba;
-        if(isTieba) url=zzz.api.tieba.convertImg(url);
-        var send_url=zzz.path.merge("http://localhost:5000/",{url:url,name:name||"",isTieba:isTieba});
-        console.log(send_url);
-        zzz.fetch.get(send_url);
-    }
-};
-zzz.api.danmu={
-    init:function(){
-        var src="https://yjhatfdu.github.io/Moe2_player/dist/";
-        var js_src="script/player.min.js";
-        var css_src="style/player.min.css";
-        zzz.fetch.js(src+js_src);
-        zzz.fetch.css(src+css_src);
-    },
-    players:[],
-    id:0,
-    create:function (danmu,video,container,relatedVideoElement) {
-        var player;
-        if(!container){
-            container=zzz.create("div",{id:"player"+this.id},{display:"block",position:"relative"},document.body);
-            this.id++;
-        }
-        if(!video){
-            if(!relatedVideoElement) video="https://www.zzzs.ml/temp/blank.mp4";
-            else video=relatedVideoElement.src;
-        }
-        try{
-            player=new Moe2.Player(container);
-            if(video) player.initVideo(video);
-            if(danmu) player.loadDanmaku(danmu);
-            this.players[this.players.length]=player;
-            var ct=player.containerEl,cv=ct.getElementsByTagName("canvas")[0];
-            zzz.anim.set(ct,{left:0,top:0,width:"auto",height:"auto"});
-            zzz.anim.set(cv,{left:0,top:0,position:"fixed"});
-            player.resize=function (height,width) {
-                if(!height) height=zzz.browser.screenY-100;
-                if(!width) width=zzz.browser.screenX;
-                var ct=this.containerEl,cv=ct.getElementsByTagName("canvas")[0];
-                if(!height) height=zzz.get.style(ct,'height');
-                if(!width) width=zzz.get.style(ct,'width');
-                cv.width=width;
-                cv.height=height;
-                console.log(height,width);
-                this.danmakuManager.height=height;
-                this.danmakuManager.width=width;
-                this.danmakuManager.resize();
-            };
-            player.hide=function (willHide) {
-                var control=this.containerEl.getElementsByClassName("control-layer")[0],video=this.videoEl;
-                zzz.set.style(video,"display",willHide?"none":"block");
-            };
-            player.bind=function (videoElement) {
-               this.videoEl=videoElement;
-            };
-            if(relatedVideoElement) player.bind(relatedVideoElement);
-            zzz.incidence.bind(player,"click",function (e) {
-                e=zzz.incidence.interpret(e);
-                if(e.mouse!=="right") return;
-                player.resize(100);
-            });
-        }
-        catch (e) {
-            console.log(e);
-        }
-        return player;
-    }
-};
-//notification API
-zzz.browser.notification={
-    previousNotification:zzz.structure.stack(),
-        //options={body,icon,lang,dir}
-    send:function (title,options) {
-        try {
-            if (zzz.browser.canNotify) {
-                return new window.Notification(title,options);
-            }
-            else {
-                return;
-            }
-        }catch (e) {
-
-        }
-    },
-    create:function (title,body,tag,onshow,onclick,onclose,onerror) {
-        try{
-            var n=new Notification(title,{body:body||null,tag:tag||null});
-            if(onshow) n.onshow=onshow;
-            if(onshow) n.onclick=onclick;
-            if(onshow) n.onclose=onclose;
-            if(onshow) n.onerror=onerror;
-        }
-        catch (e) {
-
-        }
-    },
-    title:function (title,elapse,callback) {
-        zzz.browser.notification.previousNotification.push(document.title);
-        document.title=title;
-        if(elapse){
-            setTimeout(function () {
-                var title=zzz.browser.notification.previousNotification.top();
-                if(title) document.title=title;
-                zzz.browser.notification.previousNotification.pop();
-            },elapse);
-        }
-    }
-};
-zzz.api.tongji={
-    baidu:function () {
-        window._hmt = [];
-        zzz.fetch.js("https://zzzzzzzsea.gitee.io/tongji.js");
-    }
-};
 //overall initialize
 zzz.init=function () {
     zzz.storage.init();
@@ -3255,11 +2524,6 @@ zzz.init=function () {
     zzz.message.init();
     zzz.paint.init();
     zzz.fetch.init();
-    zzz.api.update.url["zzz"]=["https://ZzzzzzzSkyward.github.io/main/update.js"];
-    zzz.api.update.current["zzz"]=zzz.version;
-    var paths=zzz.path.split(zzz.browser.uri);
-    if(paths.protocol==="file:"||paths.host.search("localhost")===0) zzz.api.tongji.local=true;
-    else if(!zzz.api.tongji.local) zzz.api.tongji.baidu();
     zzz.inited=true;
     try{
         window.zzzloaded&&window.zzzloaded();
