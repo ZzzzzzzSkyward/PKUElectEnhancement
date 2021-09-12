@@ -229,8 +229,8 @@ window.confirmSelectUnder = function (xh, stuName, courseName, classNo, onlySupp
 window.refreshLimit = function (xh, stuName, courseName, classNo, onlySupp, index, seqNo, limitedNbr, refreshUrl2) {
     clearMsg(); // 清除提示信息
     var currentTime = new Date();
-    var diff = zzz.time.convertFromDate(new Date() - lastRefreshed);
-    if (diff.minute == 0 && diff.second < 2) {
+    var diff = (new Date() - lastRefreshed) / 1000;
+    if (diff < 2) {
         sendMessage("操作太快了");
         return;
     }
@@ -544,7 +544,7 @@ window.beautifyClass = function () {
 };
 window.lazy = {
     funcs: {},
-    time:2000,
+    time: 2000,
     register: function (name, func) {
         if (!this.funcs[name]) {
             this.funcs[name] = {};
@@ -555,15 +555,17 @@ window.lazy = {
         t.time = new Date();
         this.tick(name);
     },
-    tick:function(name){
-        setTimeout(function(){lazy.run(name);},2*1000);
+    tick: function (name) {
+        setTimeout(function () {
+            lazy.run(name);
+        }, 2 * 1000);
     },
-    run:function(name){
-        if(this.funcs[name]){
-            var diff=new Date()-this.funcs[name].time;
-            if(diff<lazy.time) return;
+    run: function (name) {
+        if (this.funcs[name]) {
+            var diff = new Date() - this.funcs[name].time;
+            if (diff < lazy.time) return;
             this.funcs[name].func();
-            this.funcs[name].time=new Date();
+            this.funcs[name].time = new Date();
         }
     }
 }
@@ -571,11 +573,19 @@ window.autoSubmit = function () {
     beautify();
     var form = zzz.get.id("qyForm");
     if (!form) return;
-    for(let i of form.getElementsByTagName("input")){
-        if(i.type=="radio")
-        zzz.incidence.bind(i,"click",function(){lazy.register(i.id,function(){zzz.get.id("b_query").click();});});
-        else if(i.type=="text")
-        zzz.incidence.bind(i,"change",function(){lazy.register(i.id,function(){zzz.get.id("b_query").click();});});
+    for (let i of form.getElementsByTagName("input")) {
+        if (i.type == "radio")
+            zzz.incidence.bind(i, "click", function () {
+                lazy.register(i.id, function () {
+                    zzz.get.id("b_query").click();
+                });
+            });
+        else if (i.type == "text")
+            zzz.incidence.bind(i, "change", function () {
+                lazy.register(i.id, function () {
+                    zzz.get.id("b_query").click();
+                });
+            });
     }
 }
 
