@@ -53,16 +53,8 @@ window.tableTitle = [];
 window.toptable = zzz.create("div", {
     id: "toptable"
 }, {
-    position: "fixed",
-    display: "flex",
     top: (zzz.storage.get("y") || "0") + "px",
-    left: (zzz.storage.get("x") || "0") + "px",
-    fontSize: "20px",
-    backgroundColor: "hsla(0,0%,100%,0.34)",
-    zIndex: 9999,
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "column"
+    left: (zzz.storage.get("x") || "0") + "px"
 }, document.body);
 window.msg = zzz.create("p", {
     innerText: "这里是信息"
@@ -410,9 +402,22 @@ window.beautify = function () {
     th,td,a,span,font{
     font-size:20px!important;
     }
+    #toptable{
+        position: fixed;
+        display: flex;
+        font-size: 20px;
+        background-color: hsla(0,0%,100%,0.34);
+        z-index: 9999;
+        justify-content: center;
+        align-items: first baseline;
+        flex-direction: column;
+        width:6em;
+        overflow:visible;
+    }
     #toptable p{
     font-size:1em;
-    min-width:30px;
+    min-width:20px;
+    max-width:6em;
     box-shadow:0 0 3px 0;
     transition:all 1s linear;
     padding:5px;
