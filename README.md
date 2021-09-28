@@ -5,6 +5,10 @@
 > 缓慢更新中，预期是半年一更。  
 
 > 文件：可以直接使用bundle.js，或者先运行zzz.js，后运行ElectEnhancement.js，代码是一样的。请使用可运行用户脚本/javascript的浏览器，并复制代码。  
+> 运行javascript的方法：  
+> > 1.使用支持tampermonkey等插件的浏览器  
+> > 2.使用支持自定义脚本的浏览器，如via、Alook  
+> > 3.使用书签，将网址改成`javascript:`..........（此处粘贴bundle.min.js的代码），并每次点击该书签    
 > 2021.09更新了ElectEnhancement2021.9.js与bundle.js（精简版，没有经过检测）  
 
 效果图：
