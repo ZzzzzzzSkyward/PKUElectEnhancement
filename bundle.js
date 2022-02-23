@@ -1,160 +1,263 @@
 // ==UserScript==
 // @name         PKU Elective Enhancement
 // @namespace    elective
-// @version      2021.09
+// @version      2022.02
 // @description  enhance the page
 // @match        https://elective.pku.edu.cn/*
 // @match        https://iaaa.pku.edu.cn/*
 // @grant        none
 // ==/UserScript==
 "use strict";
-//自动登录
-window.pku_user_name = "";
-window.pku_user_password = "";
-//刷新时间
-window.lastRefreshed = new Date();
-//头
-window.headers = {
-    accept: "application/json, text/javascript, */*; q=0.01",
-    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-    origin: "https://elective.pku.edu.cn",
-    "X-Requested-With": "XMLHttpRequest"
-};
 /*
-version:1.2
-time:2020.11.14
+version:1.3
+time:2021.09.28
 author:zzs
 */
-"use strict";
-if(!window.zzz) window.zzz={};
-zzz.version=20201114;
-if(!zzz.value) zzz.value={};
-zzz.isInt=Number.isInteger ? Number.isInteger : function (number) {
+try {
+    var v = zzz.version;
+} catch (e) {
+    window.zzz = {};
+}
+zzz.version = 20210928;
+if (!zzz.value) zzz.value = {};
+if (zzz.inited) throw new Error("zzz re-init!");
+//eval
+zzz.eval = function (string) {
+    return Function("'use strict';return " + string)();
+};
+//math
+zzz.isInt = Number.isInteger ? Number.isInteger : function (number) {
     return number - 0 === Math.ceil(number);
 };
-zzz.equal=function (a,b) {
-    return a===b;
+zzz.equal = function (a, b) {
+    return a === b;
 };
-zzz.equal.num=function (a,b) {
-    return a-0===b-0;
+zzz.equal.num = function (a, b) {
+    return a - 0 === b - 0;
 };
-zzz.equal.type=function (obj,type) {
-    type=type.toString().toLowerCase();
-    if(type==="array"||type==="arr"){
+zzz.equal.type = function (obj, type) {
+    type = type.toString().toLowerCase();
+    if (type === "array" || type === "arr") {
         return obj instanceof Array;
+    } else if (type === "element") {
+        return obj instanceof Object && obj instanceof HTMLElement;
+    } else if (type === "null") {
+        return obj === null;
+    } else if (type === "nan") {
+        return isNaN(obj) && typeof obj == "number";
+    } else if (type === "integer" || type === "int") {
+        return typeof obj === "number" && zzz.isInt(obj);
+    } else {
+        return type === (typeof obj).toLowerCase();
     }
-    else if(type==="element"){
-        return obj instanceof Object&&obj instanceof  HTMLElement;
-    }
-    else if(type==="null"){
-        return obj===null;
-    }
-    else if(type==="nan"){
-        return isNaN(obj)&&typeof obj=="number";
-    }
-    else if(type==="integer"||type==="int"){
-      return typeof obj==="number"&&zzz.isInt(obj);
-    }
-  else{
-      return type===(typeof obj).toLowerCase();
-  }
 };
-zzz.toNum=function (text) {
-    var i=0,j=0,len=text.length,result=0,isNegative=0,isInt=1;
+zzz.toNum = function (text) {
+    var i = 0,
+        j = 0,
+        len = text.length,
+        result = 0,
+        isNegative = 0,
+        isInt = 1;
     //find out if there is a number and if it is a negative.
-    for(;i<len;i++){
-        if(text[i]==='-'){
-            isNegative=1;
-        }
-        else if(text[i]<='9'&&text[i]>='0') break;
+    for (; i < len; i++) {
+        if (text[i] === '-' && i < len - 1 && text[i + 1] <= '9' && text[i + 1] >= '0') {
+            //suppose there is no whitespace between - and numbers
+            isNegative = 1;
+            i++;
+            break;
+        } else if (text[i] <= '9' && text[i] >= '0') break;
     }
     //as supposed, i should have been at the number's first position.
-    if(i===len||text[i]>'9'||text[i]<'0') return NaN;
-    else{
+    if (i === len || text[i] > '9' || text[i] < '0') return NaN;
+    else {
         //find out if it is an integer or not
-        for(j=i;i<len;i++){
-            if(text[i]==='.'){
-                isInt=0;
-            }
-            else if(text[i]<'0'||text[i]>'9') break;
+        for (j = i; i < len; i++) {
+            if (text[i] === '.') {
+                isInt = 0;
+            } else if (text[i] < '0' || text[i] > '9') break;
         }
-        if(isInt) result=parseInt(text.substr(j,i-j));
-        else result=parseFloat(text.substr(j,i-j));
-        if(isNegative) result=0-result;
+        if (isInt) result = parseInt(text.substr(j, i - j));
+        else result = parseFloat(text.substr(j, i - j));
+        if (isNegative) result = 0 - result;
         return result;
     }
 };
-zzz.random=function () {
-    if(arguments.length===0) return Math.random();
-    else if(arguments.length===1){
-        if(zzz.equal.type(arguments[0],"string")) return arguments[0][zzz.random.int(0,arguments[0].length-1)];
-        else if(zzz.equal.type(arguments[0],"array")) return zzz.random.array(arguments[0]);
-        else if(zzz.equal.type(arguments[0],"object")){
-            var items=[];
-            for(var i in arguments[0]) items.push(i);
+//random
+zzz.random = function () {
+    if (arguments.length === 0) return Math.random();
+    else if (arguments.length === 1) {
+        if (zzz.equal.type(arguments[0], "string")) return arguments[0][zzz.random.int(0, arguments[0].length - 1)];
+        else if (zzz.equal.type(arguments[0], "array")) return zzz.random.array(arguments[0]);
+        else if (zzz.equal.type(arguments[0], "object")) {
+            var items = [];
+            for (var i in arguments[0]) items.push(i);
             return zzz.random.array(items);
         }
-    }
-    else return zzz.random.array(arguments);
+    } else return zzz.random.array(arguments);
 };
-zzz.random.int=function(min_included,max_included){
-    if(max_included===min_included) return min_included;
-    else if(max_included<min_included){
-        return zzz.random.int(max_included,min_included);
+zzz.random.int = function (min_included, max_included) {
+    if (max_included === min_included) return min_included;
+    else if (max_included < min_included) {
+        return zzz.random.int(max_included, min_included);
     }
-    return Math.floor(min_included+(max_included-min_included+1)*Math.random());
+    return Math.floor(min_included + (max_included - min_included + 1) * Math.random());
 };
-zzz.random.color=function (setting) {
-    let r_min=0,r_max=255,g_min=0,g_max=255,b_min=0,b_max=255;
-    let a_min=0,a_max=100;//100x
-    if(setting.r){
-        if(setting.r.min) r_min=setting.r.min;
-    if(setting.r.max) r_max=setting.r.max;
-}
-if(setting.g) {
-    if (setting.g.min) g_min = setting.g.min;
-    if (setting.g.max) g_max = setting.g.max;
-}
-if(setting.b) {
-        if (setting.b.min) b_min = setting.b.min;
-        if (setting.b.max) b_max = setting.b.max;
+zzz.random.color = function (setting) {
+    if (!setting) {
+        console.log("zzz.random.color:no setting given.");
+        setting = {};
     }
-    if(setting.a) {
-        if (setting.a.min) a_min = setting.a.min * 100;
-        if (setting.a.max) a_max = setting.a.max * 100;
+    let rgb = [0, 255, 0, 255, 0, 255];
+    let isRGB = false,
+        isHSL = false,
+        isA = false;
+    let hsl = [0, 255, 0, 255, 0, 255];
+    let a = [0, 100]; //100x
+    let index = 0;
+    let i;
+    for (i of ['r', 'g', 'b']) {
+        let n = setting[i];
+        if (n) {
+            if (n[0]) rgb[index] = n[0];
+            if (n.length > 1) rgb[index + 1] = n[1];
+            isRGB = true;
+        }
+        index += 2;
     }
-    if(!setting.rgba) return "rgb("+zzz.random.int(r_min,r_max)+','+zzz.random.int(g_min,g_max)+','+zzz.random.int(b_min,b_max)+')';
-    else return "rgba("+zzz.random.int(r_min,r_max)+','+zzz.random.int(g_min,g_max)+','+zzz.random.int(b_min,b_max)+','+zzz.random.int(a_min,a_max)/100+')';
+    index = 0;
+    for (i of ['h', 's', 'l']) {
+        let n = setting[i];
+        if (n) {
+            if (n[0]) hsl[index] = n[0];
+            if (n.length > 1) hsl[index + 1] = n[1];
+            isHSL = true;
+        }
+        index += 2;
+    }
+    i = 'a';
+    let n = setting[i];
+    if (n) {
+        if (n[0]) a[0] = n[0];
+        if (n.length > 1) a[1] = n[1];
+        isA = true;
+    }
+    let sets;
+    let rnd = "";
+    let color = ""
+    if (isRGB) {
+        sets = rgb;
+        rnd = "rgb";
+    } else if (isHSL) {
+        sets = hsl;
+        rnd = "hsl";
+    } else console.log("zzz.random.color:invalid param:{r,g,b,h,s,l,a[2]}", setting);
+    for (i = 0; i < 6; i += 2) {
+        color += zzz.random.int(sets[i], sets[i + 1]) + ','
+    }
+    if (isA) {
+        rnd += "a";
+        color += zzz.random.int(a[0], a[1]);
+    } else color = color.substr(0, color.length - 1);
+    return rnd + '(' + color + ')';
 };
-zzz.random.string=function(len){
-    if(!len) len=10;
-    var str="";
-    for(var i=0;i<len;i++){
-        str+=zzz.value.validCharacter[zzz.random.int(0,zzz.value.validCharacter.length-1)];
+zzz.random.array = function (arr) {
+    if (arr.length) return arr[zzz.random.int(0, arr.length - 1)];
+    else return null;
+};
+zzz.random.string = function (len, dictionary) {
+    if (!len) len = 10;
+    var str = "";
+    if (!dictionary) dictionary = zzz.value.validCharacter;
+    for (var i = 0; i < len; i++) {
+        str += zzz.random.array(dictionary);
     }
     return str;
 };
-zzz.random.array=function(arr){
-    if(arr.length) return arr[zzz.random.int(0,arr.length-1)];
-    else return null;
+zzz.appr = Math.round;
+zzz.down = Math.floor;
+zzz.up = Math.ceil;
+zzz.abs = Math.abs;
+
+//code
+//TODO : add UTF-8 to BASE64 encoding and decoding method. However, as JS saves string with coding UTF-16, it is very lengthy to convert UTF-8 to UTF-16 to base 64, vice versa. Therefore this function will be delayed.
+//TODO : add SHA1 calculating method for UTF-8.
+//current method:text(UTF-8)->uri(encoded)->BASE64
+//difference between uri and path:uri doesn't change ":/" into "%XX" because he thinks it belongs to a uri.
+zzz.en = function (data, type, setting) {
+    if (!type) return data;
+    type = type.toLowerCase();
+    if (type == "base64") type = "b64";
+    if (!zzz.code[type]) {
+        this.console.log("no encoding method", type, "in zzz.code");
+        return "";
+    }
+    return zzz.code[type].encode(data, setting);
+}
+zzz.de = function (data, type) {
+    if (!type) return data;
+    type = type.toLowerCase();
+    if (type == "base64") type = "b64";
+    else return zzz.code[type].decode(data);
+}
+zzz.code = {
+    b64: {
+        decode: function (base64code) {
+            return window.atob(base64code);
+        },
+        encode: function (text) {
+            return window.btoa(text);
+        },
+    },
+    header: {
+        encode: function (type, isBase64) {
+            type = type.toLowerCase();
+            const data = zzz.value.file;
+            let mime = "";
+            switch (type) {
+                case "binary":
+                    mime = data.encode("bin", "application")
+                default:
+                    mime = data.encode(type);
+            }
+            if (isBase64) mime += "data/base64;";
+            return mime;
+        }
+    },
+    url: {
+        encode: function (text) {
+            return window.encodeURI(text);
+        },
+        decode: function (url) {
+            return window.decodeURI(url);
+        }
+    },
+    path: {
+        encode: function (text) {
+            return window.encodeURIComponent(text);
+        },
+        decode: function (component) {
+            return window.decodeURIComponent(component);
+        }
+    },
+
 };
 //time
-class ztimeStructure{
+class ztimeStructure {
     constructor(time) {
-        this.year=time.year||0;
-        this.month=time.month||0;
-        this.day=time.day||0;
-        this.hour=time.hour||0;
-        this.minute=time.minute||0;
-        this.second=time.second||0;
-        this.milisecond=time.milisecond||0;
-        this.negative=time.negative||false;
+        this.year = time.year || 0;
+        this.month = time.month || 0;
+        this.day = time.day || 0;
+        this.hour = time.hour || 0;
+        this.minute = time.minute || 0;
+        this.second = time.second || 0;
+        this.milisecond = time.milisecond || 0;
+        this.negative = time.negative || false;
     }
 }
 //TODO: seperate ztime from Date, especially rewrite subtract method.
-zzz.time={
-    convertFromDate:function(date){
-        if(date instanceof Date) {
+zzz.time = {
+    convertFromDate: function (date) {
+        if (date instanceof Date) {
             var result = new ztimeStructure({
                 second: date.getSeconds(),
                 minute: date.getMinutes(),
@@ -165,11 +268,10 @@ zzz.time={
             });
             //console.log(date.getSeconds(), date.getMinutes(), date.getHours(), date.getDate(), date.getMonth(), date.getFullYear());
             return result;
-        }
-        else throw new Error("zzz.time.convertFromDate requires a Date.");
+        } else throw new Error("zzz.time.convertFromDate requires a Date.");
     },
-    readDate:function(ztime){
-        if(ztime instanceof ztimeStructure) {
+    readDate: function (ztime) {
+        if (ztime instanceof ztimeStructure) {
             var result = [0, 0, 0, 0, 0, 0];
             result[0] = ztime.second;
             result[1] = ztime.minute;
@@ -178,422 +280,477 @@ zzz.time={
             result[4] = ztime.month;
             result[5] = ztime.year;
             return result;
-        }
-        else throw new Error("zzz.time.readDate requires a ztimeStructure.");
+        } else throw new Error("zzz.time.readDate requires a ztimeStructure.");
     },
-    convertToDate:function(ztime){
-        if(!(ztime instanceof ztimeStructure)) return;
-        var result= new Date();
+    convertToDate: function (ztime) {
+        if (!(ztime instanceof ztimeStructure)) return;
+        var result = new Date();
         result.setFullYear(ztime.year);
-        result.setMonth(ztime.month-1);
+        result.setMonth(ztime.month - 1);
         result.setDate(ztime.day);
         result.setHours(ztime.hour);
         result.setMinutes(ztime.minute);
         result.setSeconds(ztime.second);
         return result;
     },
-    now:function () {
+    now: function () {
         return this.convertFromDate(new Date());
     },
-    getWeek:function(ztime){
-        if(ztime instanceof Date){
-            return ztime.getDay()||7;
-        }
-        else{
+    getWeek: function (ztime) {
+        if (ztime instanceof Date) {
+            return ztime.getDay() || 7;
+        } else {
             return this.convertToDate(ztime).getDay();
         }
     },
-    getTime:function () {
-        var result=zzz.time.now();
-        return [result.second,result.minute,result.hour];
+    getTime: function () {
+        var result = zzz.time.now();
+        return [result.second, result.minute, result.hour];
     },
-    getDate:function () {
-        var result=zzz.time.now();
-        return [result.day,result.month,result.year];
+    getDate: function () {
+        var result = zzz.time.now();
+        return [result.day, result.month, result.year];
     },
-    test:function (func,loop) {
-        if(!loop) loop=1;
-        var name=func.name?("anonymous function"+zzz.random.string(5)):func.name;
-        console.log(name+" count start"+(loop>1?" for "+loop+" times":""));
+    test: function (func, loop) {
+        if (!loop) loop = 1;
+        var name = func.name ? ("anonymous function" + zzz.random.string(5)) : func.name;
+        console.log(name + " count start" + (loop > 1 ? " for " + loop + " times" : ""));
         console.time(name);
-        for(var i=0;i<loop;i++) func();
+        for (var i = 0; i < loop; i++) func();
         console.timeEnd(name);
     },
-    stringify:function (ztime) {
-        var result="",cn="chinesenumber";
-        result+=ztime.year?(zzz.string.stringify(ztime.year,"chinese")+"年"):"";
-        result+=ztime.month?(zzz.string.stringify(ztime.month,cn)+"月"):"";
-        result+=ztime.day?(zzz.string.stringify(ztime.day,cn)+"日"):"";
-        result+=ztime.hour?(zzz.string.stringify(ztime.hour,cn)+"时"):"";
-        result+=ztime.minute?(zzz.string.stringify(ztime.minute,cn)+"分"):"";
-        result+=ztime.second?(zzz.string.stringify(ztime.second,cn)+"秒"):"";
-        result+=ztime.milisecond?(zzz.string.stringify(ztime.milisecond,cn)+"毫秒"):"";
-        if(!result) result="零秒";
+    stringify: function (ztime,format) {
+        var result = "",
+            cn = format===undefined?"chinesenumber":format;
+        result += ztime.year ? (zzz.string.stringify(ztime.year, "chinese") + "年") : "";
+        result += ztime.month ? (zzz.string.stringify(ztime.month, cn) + "月") : "";
+        result += ztime.day ? (zzz.string.stringify(ztime.day, cn) + "日") : "";
+        result += ztime.hour ? (zzz.string.stringify(ztime.hour, cn) + "时") : "";
+        result += ztime.minute ? (zzz.string.stringify(ztime.minute, cn) + "分") : "";
+        result += ztime.second ? (zzz.string.stringify(ztime.second, cn) + "秒") : "";
+        result += ztime.milisecond ? (zzz.string.stringify(ztime.milisecond, cn) + "毫秒") : "";
+        if (!result) result = "零秒";
         return result;
     },
-    diff:function (ztime1,ztime2) {
-        var t1=zzz.time.convertToDate(ztime1).getTime(),t2=zzz.time.convertToDate(ztime2).getTime();
-        var difftime=t2-t1;
-        var isNegative=difftime<0;
-        var result=zzz.time.convertFromDate(new Date(zzz.abs(difftime)));
-        result.negative=isNegative;
-        result.year-=1970;
-        if(result.year<0){
+    diff: function (ztime1, ztime2) {
+        var t1 = zzz.time.convertToDate(ztime1).getTime(),
+            t2 = zzz.time.convertToDate(ztime2).getTime();
+        var difftime = t2 - t1;
+        var isNegative = difftime < 0;
+        var result = zzz.time.convertFromDate(new Date(zzz.abs(difftime)));
+        result.negative = isNegative;
+        result.year -= 1970;
+        if (result.year < 0) {
             //TODO : negative years are meant to be corrected.
         }
         result.month--;
         result.day--;
-        result.hour-=8;
+        result.hour -= 8;
         result.minute--;
         result.second--;
         return result;
     },
-    approximate:function (different) {
-        if(!(different instanceof ztimeStructure)) return;
+    approximate: function (different) {
+        if (!(different instanceof ztimeStructure)) return;
         console.log(different);
-        var result="";
-        var cn="chineseoral";
-        var isNegative=different.negative;
-        var mostDifferent=5;
-        var sequence=["year","month","day","hour","minute","second"];
-        var name=["年","个月","天","小时","分钟","秒"];
-        for(let i=0;i<6;i++){
-            if(different[sequence[i]]>0){
-                mostDifferent=i;
+        var result = "";
+        var cn = "chineseoral";
+        var isNegative = different.negative;
+        var mostDifferent = 5;
+        var sequence = ["year", "month", "day", "hour", "minute", "second"];
+        var name = ["年", "个月", "天", "小时", "分钟", "秒"];
+        for (let i = 0; i < 6; i++) {
+            if (different[sequence[i]] > 0) {
+                mostDifferent = i;
                 break;
             }
         }
-        console.log(different,mostDifferent);
-        return zzz.string.stringify(different[sequence[mostDifferent]],cn)+name[mostDifferent]+(isNegative?"前":"后");
+        console.log(different, mostDifferent);
+        return zzz.string.stringify(different[sequence[mostDifferent]], cn) + name[mostDifferent] + (isNegative ? "前" : "后");
     },
-    create:function (year,month,day,hour,minute,second,milisecond) {
+    create: function (year, month, day, hour, minute, second, milisecond) {
         return new ztimeStructure({
-            year:year,
-            month:month,
-            day:day,
-            hour:hour,
-            minute:minute,
-            second:second,
-            milisecond:milisecond
+            year: year,
+            month: month,
+            day: day,
+            hour: hour,
+            minute: minute,
+            second: second,
+            milisecond: milisecond
         })
     },
-    UTC:function (ztime) {
+    UTC: function (ztime) {
         if (!ztime) ztime = new Date();
         else if (ztime instanceof ztimeStructure) ztime = zzz.time.convertToDate(ztime);
         else if (!(ztime instanceof Date)) return;
         return ztime.toUTCString();
     },
-    ms:function (ztime) {
-        if(ztime instanceof ztimeStructure){
-            return ztime.milisecond+
-            ztime.second*1000+
-            ztime.minute*1000*60+
-            ztime.hour*1000*60*60+
-                ztime.day*1000*60*60*24+
-                ztime.month*1000*60*60*24*30+
-                ztime.year*1000*60*60*24*30*365;
-            }
-            else return 0;
+    ms: function (ztime) {
+        if (ztime instanceof ztimeStructure) {
+            return ztime.milisecond +
+                ztime.second * 1000 +
+                ztime.minute * 1000 * 60 +
+                ztime.hour * 1000 * 60 * 60 +
+                ztime.day * 1000 * 60 * 60 * 24 +
+                ztime.month * 1000 * 60 * 60 * 24 * 30 +
+                ztime.year * 1000 * 60 * 60 * 24 * 30 * 365;
+        } else return 0;
     },
-    data:{},
-    loop:function (func,time,isLoop,isClear,name) {
-        var number=-1;
-        if(isLoop){
-            if(isClear){
-                number=zzz.time.data[func];
-                if(number===undefined) throw new Error("clearInterval unrecorded function");
-                number=number[time];
-                if(number===undefined) throw new Error("clearInterval unrecorded function time");
-                clearInterval(number);
-            }
-            else{
-                number=setInterval(func,time);
-                if(!zzz.time.data[func]) zzz.time.data[func]=[];
-                zzz.time.data[func][time]=number;
-            }
+    data: {},
+    loop: function (func, time, isClear, name) {
+        let number = -1;
+        let funcID = zzz.code.sha256.encode(func.toString());
+        if (isClear) {
+            number = zzz.time.data[funcID];
+            if (number === undefined) throw new Error("clearInterval unrecorded function");
+            number = number[time];
+            if (number === undefined) throw new Error("clearInterval unrecorded function time");
+            clearInterval(number);
+        } else {
+            number = setInterval(func, time);
+            if (!zzz.time.data[funcID]) zzz.time.data[funcID] = {};
+            zzz.time.data[funcID][time] = number;
         }
-        else{
-            if(isClear){
-                number=zzz.time.data[func];
-                if(number===undefined) throw new Error("clearInterval unrecorded function");
-                number=number[time];
-                if(number===undefined) throw new Error("clearInterval unrecorded function time");
-                clearTimeout(number);
-            }
-            else{
-                number=setTimeout(func,time);
-                if(!zzz.time.data[func]) zzz.time.data[func]=[];
-                zzz.time.data[func][time]=number;
-            }
-        }
-        if(name) zzz.time.data[name]=number;
+        if (name) zzz.time.data[name] = [number, true];
         return number;
     },
-    clear:function (numberOrName,isLoop) {
-        var number=(typeof numberOrName==="string")?zzz.time.data[numberOrName]:numberOrName;
-        if(zzz.equal.type(number,"integer")) throw new Error("zzz.time.clear receives param not of number or string");
-        if(isLoop) clearInterval(number);
+    tick: function (func, time, isClear, name) {
+        let number;
+        let funcID = zzz.code.sha256.encode(func.toString());
+        if (isClear) {
+            number = zzz.time.data[funcID];
+            if (number === undefined) throw new Error("clearTimeout unrecorded function");
+            number = number[time];
+            if (number === undefined) throw new Error("clearTimeout unrecorded function time");
+            clearTimeout(number);
+        } else {
+            number = setTimeout(func, time);
+            if (!zzz.time.data[funcID]) zzz.time.data[funcID] = {};
+            zzz.time.data[funcID][time] = number;
+        }
+        if (name) zzz.time.data[name] = [number, false];
+        return number;
+    },
+    clear: function (numberOrName) {
+        var number = (typeof numberOrName === "string") ? zzz.time.data[numberOrName] : numberOrName;
+        if (zzz.equal.type(number, "integer")) throw new Error("zzz.time.clear receives param not of number or string");
+        isLoop = zzz.time.data[numberOrName][1];
+        if (isLoop) clearInterval(number);
         else clearTimeout(number);
+    },
+    sleep: function (time) {
+        return new Promise(function (resolve, reject) {
+            setTimeout(resolve, time);
+        })
     }
 };
 //storage
 //TODO : cookie and sessionStorage
-zzz.storage={
-    init:function () {
-        if(window.localStorage){
-            this.db=window.localStorage;
-            this.get=function (key) {
-                return window.localStorage.getItem(key)||null;
+zzz.storage = {
+    init: function () {
+        if (window.localStorage) {
+            this.db = window.localStorage;
+            this.get = function (key) {
+                return window.localStorage.getItem(key) || null;
             };
-            this.set=function (key,value) {
-                return window.localStorage.setItem(key,value);
+            this.set = function (key, value) {
+                return window.localStorage.setItem(key, value);
             };
-            this.del=function (key) {
+            this.del = function (key) {
                 return window.localStorage.removeItem(key);
             }
-        }
-        else if(document.cookie){
-            this.db=document.cookie;
-            this.get=function (key) {
-                var cookie=document.cookie.split(";");
+        } else if (document.cookie) {
+            this.db = document.cookie;
+            this.get = function (key) {
+                var cookie = document.cookie.split(";");
                 var index;
-                for(var i of cookie){
-                    index=i.indexOf("=");
-                    if(i.slice(0,index)===key) return i.slice(index+1);
+                for (var i of cookie) {
+                    index = i.indexOf("=");
+                    if (i.slice(0, index) === key) return i.slice(index + 1);
                 }
                 return null;
             };
             this.readCookie();
         }
     },
-    add:function (item,key,value) {
-        var obj=JSON.parse(zzz.storage.get(item)||"{}");
-        obj[key]=value;
-        var result=JSON.stringify(obj);
-        zzz.storage.set(item,result);
+    add: function (item, key, value) {
+        var obj = zzz.storage.get(item);
+        if (obj) obj = JSON.parse(obj);
+        else obj = {};
+        obj[key] = value;
+        var result = JSON.stringify(obj);
+        zzz.storage.set(item, result);
     },
-    json:function (key) {
-        return JSON.parse(zzz.storage.get(key));
+    json: function (key, value) {
+        if (value) {
+            return this.set(key, JSON.stringify(value));
+        } else return JSON.parse(zzz.storage.get(key));
     },
-    readCookie:function () {
-        var cookie=document.cookie.split(";");
-        var result=zzz.storage.cookie;
-        var index=0;
-        for(var i of cookie){
-            index=i.indexOf("=");
-            result[i.slice(0,index)]=i.slice(index+1);
+    readCookie: function () {
+        var cookie = document.cookie.split(";");
+        var result = zzz.storage.cookie;
+        var index = 0;
+        for (var i of cookie) {
+            index = i.indexOf("=");
+            result[i.slice(0, index)] = i.slice(index + 1);
         }
         return zzz.storage.cookie;
     },
-    getc:function (key){
+    getc: function (key) {
         zzz.storage.readCookie();
-        var result=zzz.storage.cookie[key];
-        if(result) return result;
+        var result = zzz.storage.cookie[key];
+        if (result) return result;
         else return null;
     },
-    setc:function (key,value,expire) {
-        zzz.storage.cookie[key]=value;
-        zzz.storage.expire[key]=expire||zzz.storage.setDiffTime();
+    setc: function (key, value, expire) {
+        zzz.storage.cookie[key] = value;
+        zzz.storage.expire[key] = expire || zzz.storage.setDiffTime();
         zzz.storage.refreshCookie();
     },
-    delc:function(key){
-        document.cookie=key+"="+zzz.storage.cookie[key]+";expires="+(new Date()).toGMTString()+";";
+    delc: function (key) {
+        document.cookie = key + "=" + zzz.storage.cookie[key] + ";expires=" + (new Date()).toGMTString() + ";";
         delete zzz.storage.cookie[key];
     },
-    setDiffTime:function(diffztime){
-        if(diffztime===undefined||diffztime===null) diffztime=zzz.value.storage.defaultExpire*1000;
+    setDiffTime: function (diffztime) {
+        if (diffztime === undefined || diffztime === null) diffztime = zzz.value.storage.defaultExpire * 1000;
         else {
             if (diffztime instanceof Date) diffztime = diffztime.getTime();
-            else if(diffztime instanceof ztimeStructure) diffztime=zzz.time.ms(diffztime);
-            else if(typeof diffztime ==="string") diffztime=zzz.toNum(diffztime);
+            else if (diffztime instanceof ztimeStructure) diffztime = zzz.time.ms(diffztime);
+            else if (typeof diffztime === "string") diffztime = zzz.toNum(diffztime);
         }
-        var currentTime=new Date();
-        currentTime.setTime(currentTime.getTime()+diffztime);
+        var currentTime = new Date();
+        currentTime.setTime(currentTime.getTime() + diffztime);
         return currentTime.toGMTString();
     },
-    setTime:function(time){
-        if(time instanceof ztimeStructure) time=zzz.time.convertToDate(time);
+    setTime: function (time) {
+        if (time instanceof ztimeStructure) time = zzz.time.convertToDate(time);
         return time.toGMTString();
     },
-    refreshCookie:function(){
-        var cookieText="";
-        for(let i in zzz.storage.cookie){
-            cookieText=i+"="+zzz.storage.cookie[i]+";";
-            if(zzz.storage.expire[i]) cookieText+="expires="+zzz.storage.expire[i]+";";
-            document.cookie=cookieText;
+    refreshCookie: function () {
+        var cookieText = "";
+        for (let i in zzz.storage.cookie) {
+            cookieText = i + "=" + zzz.storage.cookie[i] + ";";
+            if (zzz.storage.expire[i]) cookieText += "expires=" + zzz.storage.expire[i] + ";";
+            document.cookie = cookieText;
         }
     },
-    c:function () {
-        if(arguments.length===0) return zzz.storage.readCookie();
-        else if(arguments.length===1) return zzz.storage.getc(arguments[0]);
-        else if(arguments.length===2){
-            if(zzz.equal.type(arguments[1],"object")){
-                for(let i in arguments[1]){
-                    zzz.storage.cookie[i]=arguments[1][i];
+    c: function () {
+        if (arguments.length === 0) return zzz.storage.readCookie();
+        else if (arguments.length === 1) return zzz.storage.getc(arguments[0]);
+        else if (arguments.length === 2) {
+            if (zzz.equal.type(arguments[1], "object")) {
+                for (let i in arguments[1]) {
+                    zzz.storage.cookie[i] = arguments[1][i];
                 }
                 zzz.storage.refreshCookie();
+            } else {
+                zzz.storage.setc(arguments[0], arguments[1]);
             }
-            else{
-                zzz.storage.setc(arguments[0],arguments[1]);
-            }
-        }
-        else if(arguments.length===3) zzz.storage.setc(arguments[0],arguments[1],arguments[2])
+        } else if (arguments.length === 3) zzz.storage.setc(arguments[0], arguments[1], arguments[2])
     },
-    cookie:{},
-    expire:{}
+    cookie: {},
+    expire: {}
 };
 //browser check
 //TODO : complementary.
-zzz.browser={
-    cookie:window.navigator.cookieEnabled,
-    online:window.navigator.onLine,
-    uri:window.location.href,
-    host:window.location.hostname,
-    path:window.location.pathname,
-    protocol:window.location.protocol,
-    ie:!!window.attachEvent,
-    title:document.title,
-    back:history.back,
-    forward:history.forward,
-    replace:location.replace,
-    open:function (path,name,type) {
-        console.log(path,name,type);
-        window.open(path,name,type);
+zzz.browser = {
+    cookie: window.navigator.cookieEnabled,
+    online: window.navigator.onLine,
+    uri: window.location.href,
+    host: window.location.hostname,
+    path: window.location.pathname,
+    protocol: window.location.protocol,
+    ie: !!window.attachEvent,
+    title: document.title,
+    back: history.back,
+    forward: history.forward,
+    replace: location.replace,
+    open: function (path, name, type) {
+        console.log(path, name || "", type || "");
+        window.open(path, name, type);
+    },
+    init: function () {
+        for (var i in zzz.browser.collect) {
+            try {
+                zzz.browser.collect[i]();
+            } catch (e) {}
+        }
     }
 };
-zzz.browser.open.inner=function(settings){
-    if(settings===undefined) return;
+zzz.browser.open.inner = function (settings) {
+    if (settings === undefined) return;
     let src;
-    if(zzz.equal.type(settings,"string")){
-        src=settings;
-    }
-    else{
-        src=settings.src;
+    if (zzz.equal.type(settings, "string")) {
+        src = settings;
+    } else {
+        src = settings.src;
         delete settings.src;
     }
-    if(!src) return;
-    var node=zzz.create("iframe");
-  var default_settings={
-      frameborder:0,
-      name:undefined,
-      height:undefined,
-      scrolling:false,
-      width:undefined,
-      transparent:false
+    if (!src) return;
+    var node = zzz.create("iframe");
+    var default_settings = {
+        frameborder: 0,
+        name: undefined,
+        height: undefined,
+        scrolling: false,
+        width: undefined,
+        transparent: false
     };
-  //transparent
-  if(settings.transparent){
-      zzz.set(node,"allowtransparency","true");
-      zzz.set.style("backgroundColor","transparent");
-  }
-  node.src=src;
-  zzz.addAttr(node,settings);
-  return node;
+    //transparent
+    if (settings.transparent) {
+        zzz.set(node, "allowtransparency", "true");
+        zzz.set.style("backgroundColor", "transparent");
+    }
+    node.src = src;
+    zzz.addAttr(node, settings);
+    return node;
 };
 //attribute
 //set type
-zzz.addAttr=function(obj,key_value_set){
-    for(let i in key_value_set){
-        obj[i]=key_value_set[i];
+zzz.addAttr = function (obj, key_value_set) {
+    for (let i in key_value_set) {
+        obj[i] = key_value_set[i];
     }
 };
 //chain type
-zzz.appendAttr=function(obj,key,value){
-    obj[key]=value;
-    var returnObject={
-        func:function (key,value) {
-            this.obj[key]=value;
+zzz.appendAttr = function (obj, key, value) {
+    obj[key] = value;
+    var returnObject = {
+        func: function (key, value) {
+            this.obj[key] = value;
         },
-        obj:obj
+        obj: obj
     };
     return returnObject;
 };
+
 //collect information about the browser
-zzz.browser.collectData={
-    screen:function () {
-        var a=document&&document.documentElement&&document.documentElement.clientHeight||0,b=window.innerHeight||0,c=document&&document.body&&document.body.clientHeight||0;
-        zzz.browser.screenY=Math.max(a,b,c);
-        a=document&&document.documentElement&&document.documentElement.clientWidth;
-        b=window.innerWidth;
-        c=document&&document.body&&document.body.clientWidth;
-        zzz.browser.screenX=Math.max(a,b,c);
+zzz.browser.collect = {
+    screen: function () {
+        var a = document && document.documentElement && document.documentElement.clientHeight || 0,
+            b = window.innerHeight || 0,
+            c = document && document.body && document.body.clientHeight || 0;
+        zzz.browser.screenY = Math.max(a, b, c);
+        a = document && document.documentElement && document.documentElement.clientWidth;
+        b = window.innerWidth;
+        c = document && document.body && document.body.clientWidth;
+        zzz.browser.screenX = Math.max(a, b, c);
     },
-    time:function () {
-       zzz.browser.time=zzz.time.now();
+    time: function () {
+        zzz.browser.time = zzz.time.now();
     },
-    fullscreen:function () {
-        zzz.browser.hasFullscreen=document.fullscreenEnabled;
+    fullscreen: function () {
+        zzz.browser.hasFullscreen = document.fullscreenEnabled;
     },
-    resizeObserver:function () {
-        zzz.browser.hasResizeObserver=!!window.ResizeObserver;
+    resizeObserver: function () {
+        zzz.browser.hasResizeObserver = !!window.ResizeObserver;
     },
-    notification:function () {
-        zzz.browser.hasNotification=!!window.Notification;
-        zzz.browser.canNotify=window.Notification&&window.Notification.permission!=="denied";
+    notification: function () {
+        zzz.browser.hasNotification = !!window.Notification;
+        zzz.browser.canNotify = window.Notification && window.Notification.permission !== "denied";
     }
-};
-zzz.browser.init=function(){
-    for(var i in zzz.browser.collectData) zzz.browser.collectData[i]();
 };
 //BOM
 //TODO : specify
-zzz.get=function (name) {
-    if(name[0]==='.') return zzz.get.cls(name.substr(1));
-    else if(name[0]==='#') return zzz.get.id(name.substr(1));
-    else return zzz.get.tag(name);
+zzz.get = function (name, parent) {
+    if (name[0] === '.') return zzz.get.cls(name.substr(1), parent);
+    else if (name[0] === '#') return zzz.get.id(name.substr(1), parent);
+    else return zzz.get.tag(name, parent);
 };
-zzz.get.id=function (id) {
-    return document.getElementById(id);
+zzz.query = function (name, parent, func) {
+    let result = (parent || document).querySelectorAll(name);
+    if (typeof func === "function") {
+        for (let i in result) func(result[i], i);
+    }
+    return result;
 };
-zzz.get.cls=function (className) {
-    return document.getElementsByClassName(className);
+zzz.queryAttr = function (name, parent, func) {
+    let result = [];
+    let elements = (parent || document).querySelectorAll(name);
+    if (typeof func === "function") {
+        for (let i in elements) {
+            let res = func(elements[i], i);
+            if(res!==undefined) result.push(res);
+        }
+    }
+    return result;
 };
-zzz.get.tag=function (tagName) {
-    return document.getElementsByTagName(tagName);
+//mode:function,key-value.
+//it can also be used as mapping
+zzz.filter = function (arr, criteria, value) {
+    let type = typeof criteria;
+    let result = [];
+    //mode:function
+    if (type === "function") {
+        for (i of arr) {
+            if (criteria(i)) {
+                result.push(i);
+            }
+        }
+    }
+    //mode:key-value
+    else if (criteria !== undefined && value) {
+        for (i of arr) {
+            if (i[criteria] === value) {
+                result.push(i);
+            }
+        }
+    }
+    return result;
 };
-zzz.get.attr=function(element,attribute){
+zzz.map = zzz.filter;
+zzz.get.id = function (id, parent) {
+    return (parent || document).getElementById(id);
+};
+zzz.get.cls = function (className, parent) {
+    return (parent || document).getElementsByClassName(className);
+};
+zzz.get.tag = function (tagName, parent) {
+    return (parent || document).getElementsByTagName(tagName);
+};
+zzz.get.attr = function (element, attribute) {
     return element.getAttribute(attribute);
 };
-zzz.get.style=function(element,style){
+zzz.get.style = function (element, style) {
     return getComputedStyle(element)[style];
 };
-zzz.create=function(tag,attributes,styles,parentNode){
-  var element=document.createElement(tag);
-  if(attributes){
-      for(var i of ["innerText","className","innerHTML","id","name"]){
-          if(attributes[i]) element[i]=attributes[i];
-          //delete attributes[i];
-      }
-      for(var i in attributes) element.setAttribute(i,attributes[i]);
-  }
-  if(styles){
-      zzz.anim.set(element,styles);
-  }
-  if(parentNode) parentNode.appendChild(element);
-  return element;
+zzz.create = function (tag, attributes, styles, parent) {
+    var element = document.createElement(tag);
+    if (attributes) {
+        for (var i of ["innerText", "className", "innerHTML", "id", "name"]) {
+            if (attributes[i]) element[i] = attributes[i];
+            //delete attributes[i];
+        }
+        for (var i in attributes) element.setAttribute(i, attributes[i]);
+    }
+    if (styles) {
+        zzz.anim.set(element, styles);
+    }
+    if (parent) parent.appendChild(element);
+    return element;
 };
-zzz.set=function (element,attribute,value) {
-    element.setAttribute(attribute,value);
+zzz.set = function (element, attribute, value) {
+    element.setAttribute(attribute, value);
 };
-zzz.set.style=function(element,attr,value){
-    element.style[attr]=value;
+zzz.set.style = function (element, attr, value) {
+    element.style[attr] = value;
 };
+
 //incidence
-zzz.incidence={
-    index:0,
-    init:function(){
+//alias:event
+zzz.incidence = {
+    index: 0,
+    init: function () {
         //addEvent
-      if(document.body.addEventListener){
-          zzz.incidence.specificEventBinder=0;
-      }
-      else if(document.body.attachEvent){
-          zzz.incidence.specificEventBinder=1;
-      }
-      else zzz.incidence.specificEventBinder=2;
-      //start mousemove
-        zzz.incidence.bind(document.body,"mousemove",zzz.incidence.mousemove);
+        if (document.body.addEventListener) {
+            zzz.incidence.specificEventBinder = 0;
+        } else if (document.body.attachEvent) {
+            zzz.incidence.specificEventBinder = 1;
+        } else zzz.incidence.specificEventBinder = 2;
+        //start mousemove
+        zzz.incidence.bind(document.body, "mousemove", zzz.incidence.mousemove);
     },
-    bind:function (element,type,func,isCapture) {
+    bind: function (element, type, func, isCapture) {
         //fix for Firefox scroll
         if (type === "scroll") {
             if (zzz.browser.type === "firefox") {
@@ -603,93 +760,104 @@ zzz.incidence={
             }
         }
         //resizeObserver API
-        if(type==="resize") {
-            if (zzz.browser.hasResizeObserver){
-                return zzz.incidence.bindResizeObserver(element,func);
+        if (type === "resize") {
+            if (zzz.browser.hasResizeObserver) {
+                return zzz.incidence.bindResizeObserver(element, func);
             }
         }
-        if(zzz.incidence.specificEventBinder===0){
-            return element.addEventListener(type,func,isCapture);
-        }
-        else if(zzz.incidence.specificEventBinder===1){
-            return element.attachEvent("on"+type,func);
-        }
-        else{
-            if(element["on"+type]){
-                var oldFunc=element["on"+type],newFunc=function () {
-                    oldFunc();
-                    func();
-                };
-                element["on"+type]=newFunc;
-            }
-            else
-            element["on"+type]=func;
+        if (zzz.incidence.specificEventBinder === 0) {
+            return element.addEventListener(type, func, isCapture);
+        } else if (zzz.incidence.specificEventBinder === 1) {
+            return element.attachEvent("on" + type, func);
+        } else {
+            if (element["on" + type]) {
+                var oldFunc = element["on" + type],
+                    newFunc = function () {
+                        oldFunc();
+                        func();
+                    };
+                element["on" + type] = newFunc;
+            } else
+                element["on" + type] = func;
         }
     },
-    erase:function (element,type,func,isCapture) {
+    //batch mode
+    binds: function (element, setting) {
+        for (let i in setting) {
+            this.bind(element, i, setting[i]);
+        }
+    },
+    erase: function (element, type, func, isCapture) {
         //TODO : rewrite with .apply
-        if(zzz.incidence.specificEventBinder===0){
-            element.removeEventListener(type,func);
-        }
-        else if(zzz.incidence.specificEventBinder===1){
-            element.removeEventListener(type,func);
-        }
-        else{
+        if (zzz.incidence.specificEventBinder === 0) {
+            element.removeEventListener(type, func);
+        } else if (zzz.incidence.specificEventBinder === 1) {
+            element.removeEventListener(type, func);
+        } else {
             console.log("unable to unbind the function.")
         }
     },
-    interpret:function (event) {
-        var interpretation={
-            mouse:event.button===2?"right":(event.button===0?"left":undefined)
-            ,client:[event.clientX,event.clientY]
-            ,screen:[event.screenX,event.screenY]
-            ,page:[event.pageX,event.pageY]
-            ,alt:event.altKey!==undefined?event.altKey:(event.getModifierState!==undefined?event.getModifierState("Alt"):false)
-            ,ctrl:event.ctrlKey||false
-            ,shift:event.shiftKey||false
-            ,capslock:event.getModifierState!==undefined?event.getModifierState("Capslock"):false
-            ,type:event.type
-            ,target:event.target||event.srcElement
-            ,key:(event.key?(event.key.length===1?event.key:event.key.toLowerCase()):zzz.value.convertTokey(event.keyCode))||undefined
-            ,code:event.keyCode||event.which||undefined
-            ,delta:event.detail?event.detail/3:event.wheelDelta/120//firefox fix not present
+    interpret: function (event) {
+        var interpretation = {
+            mouse: event.button === 2 ? "right" : (event.button === 0 ? "left" : undefined),
+            client: [event.clientX, event.clientY],
+            screen: [event.screenX, event.screenY],
+            page: [event.pageX, event.pageY],
+            alt: event.altKey !== undefined ? event.altKey : (event.getModifierState !== undefined ? event.getModifierState("Alt") : false),
+            ctrl: event.ctrlKey || false,
+            shift: event.shiftKey || false,
+            capslock: event.getModifierState !== undefined ? event.getModifierState("Capslock") : false,
+            type: event.type,
+            target: event.target || event.srcElement,
+            key: (event.key ? event.key.toLowerCase() : (zzz.value.convertTokey && zzz.value.convertTokey(event.keyCode))) || undefined,
+            code: event.keyCode || event.which || undefined,
+            delta: event.detail ? event.detail / 3 : event.wheelDelta / 120 //firefox fix not present
         };
         return interpretation;
     },
-    edit:{
-        enable:function (element) {
-            zzz.set(element,"contenteditable","true");
+    edit: {
+        enable: function (element) {
+            zzz.set(element, "contenteditable", "true");
         },
-        disable:function (element) {
-            zzz.set(element,"contenteditable","false");
+        disable: function (element) {
+            zzz.set(element, "contenteditable", "false");
         }
     },
-    waiting:false,
-    interval:100,//ms
-    mousemove:function (e) {
-        if(zzz.incidence.waiting) return;
-        e=zzz.incidence.interpret(e);
-        zzz.incidence.data.target=e.target;
-        zzz.incidence.waiting=true;
+    waiting: false,
+    interval: 100, //ms
+    mousemove: function (e) {
+        if (zzz.incidence.waiting) return;
+        e = zzz.incidence.interpret(e);
+        zzz.incidence.data.target = e.target;
+        zzz.incidence.waiting = true;
         setTimeout(function () {
-            zzz.incidence.waiting=false;
-        },zzz.incidence.interval);
+            zzz.incidence.waiting = false;
+        }, zzz.incidence.interval);
     },
-    data:{}
+    data: {}
 };
+zzz.event = zzz.incidence;
+
 //fetch API
 //simple fetch=get
-zzz.fetch={
-    fetchEnabled:false,
-    ajaxEnabled:false,
-    safe_fetch:{
-        method: "GET",
-        mode:"same-origin",
-        credentials: "same-origin",
-        cache:"default",
-        redirect:"follow"
+//simple use:zzz.get.url(url,settings{type[form,html,js,css,text,json,etc],method[get,post,option],callback:function(){},success:f(){},fail(){}})
+zzz.fetch = {
+    fetchEnabled: false,
+    ajaxEnabled: false,
+    headers: {
+        form: {
+            'Content-Type': "application/x-www-form-urlencoded;charset=UTF-8"
+        },
+        forbidden: ['Accept-Charset', 'Accept-Encoding', 'Access-Control-Request-Headers', 'Access-Control-Request-Method', 'Connection', 'Content-Length', 'Cookie', 'Cookie2', 'Date', 'DNT', 'Expect', 'Host', 'Keep-Alive', 'Origin', 'Referer', 'TE', 'Trailer', 'Transfer-Encoding', 'Upgrade', 'Via']
     },
-    requestStructure:function() {
+    safe_fetch: {
+        method: "GET",
+        mode: "same-origin",
+        credentials: "same-origin",
+        cache: "default",
+        redirect: "follow"
+    },
+    requestStructure: function () {
         return {
             url: undefined,
             data: undefined,
@@ -706,44 +874,45 @@ zzz.fetch={
             async: true
         };
     },
-    headStructure:{
-        Date:"",//standard format:Web, 21 Oct 2015 07:28:00 GMT
-        Cookie:"",//cookie
+    headStructure: {
+        Date: "", //standard format:Web, 21 Oct 2015 07:28:00 GMT
+        Cookie: "", //cookie
     },
-    head:{
-        create:function(settings){
-            var head=new Headers();
-            for(var i in settings){
-                i=i[0].toUpperCase()+i.substr(1);
-                head.append(i,settings.i);
+    head: {
+        create: function (settings) {
+            var head = new Headers();
+            for (var i in settings) {
+                i = i[0].toUpperCase() + i.substr(1);
+                head.append(i, settings.i);
             }
             return head;
         }
     },
-    send:function(){throw new Error("sending fetch");},
-    create:function(url,settings){
-        var request=zzz.fetch.requestStructure();
-        request.url=url;
-        zzz.addAttr(request,settings);
-        var promise=zzz.fetch.fetchEnabled?zzz.fetch.fetch(request):zzz.fetch.ajax(request);
+    send: function () {
+        throw new Error("sending fetch");
+    },
+    create: function (url, settings) {
+        var request = zzz.fetch.requestStructure();
+        request.url = url;
+        zzz.addAttr(request, settings);
+        var promise = zzz.fetch.fetchEnabled ? zzz.fetch.fetch(request) : zzz.fetch.ajax(request);
         return promise;
     },
-    init:function () {
+    init: function () {
         try {
-            if (window.fetch || WorkerGlobalScope.fetch) zzz.fetch.fetchEnabled=true;
-        }catch (e) {}
-        try{
-            if(XMLHttpRequest) zzz.fetch.ajaxEnabled=true;
-        }catch (e) {}
-        if(zzz.fetch.fetchEnabled) {
-            zzz.fetch.fetch = function (settings) {
+            if (window.fetch || WorkerGlobalScope.fetch) zzz.fetch.fetchEnabled = true;
+        } catch (e) {}
+        try {
+            if (new XMLHttpRequest()) zzz.fetch.ajaxEnabled = true;
+        } catch (e) {}
+        if (zzz.fetch.fetchEnabled) {
+            zzz.fetch.fetch = async function (settings) {
                 if (!settings.url) return false;
-                if (zzz.equal.type(settings.input, "string")) {
-                }
+                if (zzz.equal.type(settings.input, "string")) {}
                 var init = {
                     method: settings.method || (settings.data ? "POST" : "GET"),
-                    mode: settings.cors?"cors":"same-origin",
-                    body:settings.data||undefined,
+                    mode: settings.cors ? "cors" : "same-origin",
+                    body: settings.data || undefined,
                     credentials: settings.credentials || "include",
                     cache: settings.cache || "reload",
                     redirect: settings.redirect || undefined,
@@ -752,45 +921,92 @@ zzz.fetch={
                     referrerPolicy: settings.referrerPolicy || undefined
                 };
                 //callback is json/text/blob which can apply the respective function .x()
-                var promise = zzz.fetch.send(settings.url, init);
+                var promise = fetch(settings.url, init);
                 if (settings.callback) return promise.then(settings.callback);
-                else return promise;
+                else{
+                    return promise;
+                }
             };
         }
-        if(zzz.fetch.ajaxEnabled){
-            zzz.fetch.ajax=function (settings) {
-                if(!settings.url) return false;
-                var xhr=new XMLHttpRequest();
-                xhr.open(settings.method||"GET",settings.url,settings.async===undefined?true:settings.async);
-                if(settings.callback) xhr.onreadystatechange=settings.callback;
-                if(settings.timeout) xhr.timeout=settings.timeout;
-                if(settings.header) for(let i in settings.header) xhr.setRequestHeader(i,settings.header[i]);
-                if(settings.ontimeout) xhr.ontimeout=settings.ontimeout;
+        if (zzz.fetch.ajaxEnabled) {
+            zzz.fetch.ajax = function (settings) {
+                if (!settings.url) return false;
+                var xhr = new XMLHttpRequest();
+                //document
+                /*
+                onreadystatechange
+                ontimeout
+                readyState:enumerate{unsent,opened,headers_received,loading,done},therefore 4 means ready.
+                response[Array,Blob,Document,DOMString]
+                responseType
+                responseText:null
+                responseURL:""
+                status:401...
+                statusText:"200 OK"...
+                timeout:ms
+                withCredentials:?
+                upload:the object
+                --non-standard
+                --onload
+                --onloadstart
+                --onloadend
+                --onerror
+                --onabort
+                --onprogress
+                abort():stop
+                open("GET"method,url,async=true,username=null,password=null):initialize
+                setRequestHeader(header,value):add value instead of overriding the previous one if permitted
+                overrideMimeType(type):override response header
+                getAllResponseHeaders:"...CRLF...",null
+                getResponseHeader(header):null
+
+                */
+                xhr.open(settings.method || "GET", settings.url, settings.async === undefined ? true : settings.async);
+                if (settings.callback) xhr.onreadystatechange = settings.callback;
+                if (settings.timeout) xhr.timeout = settings.timeout;
+                if (settings.form)
+                    for (let i in this.headers.form) xhr.setRequestHeader(i, this.headers.form[i]);
+                if (settings.header)
+                    for (let i in settings.header) xhr.setRequestHeader(i, settings.header[i]);
+                if (settings.ontimeout) xhr.ontimeout = settings.ontimeout;
                 xhr.send(settings.data);
                 return xhr;
             }
         }
     },
-    judge:function (response) {
+    judge: function (response) {
         console.log(response);
-        if(response.complete) return "success";
-        if(response.ok!==undefined) return response.ok?"success":"fail";
-        return response.readyState===4?(response.status===200?"pending":"fail"):"success";
+        if (response.complete) return "success";
+        if (response.ok !== undefined) return response.ok ? "success" : "fail";
+        return response.readyState === 4 ? (response.status === 200 ? "pending" : "fail") : "success";
     },
     //jsonp without cors callback
-    cors:function(src,type,parent,callback) {
-        if(!parent) parent=document.body;
-        if(!type) type="script";
-        var node=zzz.create(type,{src:src},{display:"none"});
-        if(callback) {
+    cors: function (src, type, parent, callback) {
+        if (!parent) parent = document.body;
+        if (!type) type = "script";
+        var node = zzz.create(type, {
+            src: src
+        }, {
+            display: "none"
+        });
+        if (callback) {
             let wrapper = function () {
-                callback({node:node,ok:true});
+                callback({
+                    node: node,
+                    ok: true
+                });
             };
             let wrapper_fail = function () {
-                callback({node:node,ok:false});
+                callback({
+                    node: node,
+                    ok: false
+                });
             };
-            let wrapper_change=function(){
-                callback({node:node,readyState:node.readyState});
+            let wrapper_change = function () {
+                callback({
+                    node: node,
+                    readyState: node.readyState
+                });
             };
             zzz.incidence.bind(node, "load", wrapper);
             zzz.incidence.bind(node, "readystatechange", wrapper_change);
@@ -800,42 +1016,55 @@ zzz.fetch={
         return node;
     },
     //jsonp with cors callback
-    get:function (src,callback,parent,head) {
-        if(!parent) parent=document.body;
-        var node=zzz.create("script",{src:src},{display:"none"});
+    get: function (src, callback, parent, head) {
+        if (!parent) parent = document.body;
+        var node = zzz.create("script", {
+            src: src
+        }, {
+            display: "none"
+        });
         var uniqueText = zzz.random.string(30);
         window[uniqueText] = function (response) {
             callback(response);
             delete window[uniqueText];
         };
-        zzz.set(node, "src", zzz.path.merge(src, {callback: uniqueText}));
+        zzz.set(node, "src", zzz.path.merge(src, {
+            callback: uniqueText
+        }));
         parent.appendChild(node);
         return node;
     },
     //resource loading
-    css:function (src,parent) {
-        var node=zzz.create("link",{href:src,rel:"stylesheet",type:"text/css"});
-        if(!parent) parent=document.body;
+    css: function (src, parent) {
+        var node = zzz.create("link", {
+            href: src,
+            rel: "stylesheet",
+            type: "text/css"
+        });
+        if (!parent) parent = document.body;
         parent.appendChild(node);
         return node;
     },
-    font:function (name,src) {
+    font: function (name, src) {
         var node = zzz.create("style");
         node.innerText = "@font-face{font-family:'" + name + "';src:url('" + src + "')}";
         document.body.appendChild(node);
     },
-    js:function (src,parent) {
-        if(!parent) parent=document.body;
-        var node=zzz.create("script",{src:src});
+    js: function (src, parent) {
+        if (!parent) parent = document.body;
+        var node = zzz.create("script", {
+            src: src
+        });
         parent.appendChild(node);
     }
 };
+
 //absolute path API
 //convert a relative path into an absolute API
 //for example, ../images/1.jpg + https://blog.cn/css = https://blog.cn/images/1.jpg
 //do not add / to the end.
-zzz.path={
-    split:function(url){
+zzz.path = {
+    split: function (url) {
         //https://www.a.b.com:443/d?e=f&g=h
         //protocol=https:
         //path=/d
@@ -844,230 +1073,384 @@ zzz.path={
         //host=www.a.b.com
         //port=443
         //judge protocol from ://,and delete it.
-        var protocol_index,protocol,component_index,component=[],port_index,port,host,path="/",host_index,domain,subdomain;
-        protocol_index=url.match("://");
-        protocol=protocol_index?url.substr(0,protocol_index.index+1):"";
-        if(protocol_index) url=url.substr(protocol_index.index+3);
-        if(url[0]==="/") url=url.substr(1);
+        var protocol_index, protocol, component_index, component = [],
+            port_index, port, host, path = "/",
+            host_index, domain, subdomain;
+        protocol_index = url.match("://");
+        protocol = protocol_index ? url.substr(0, protocol_index.index + 1) : "";
+        if (protocol_index) url = url.substr(protocol_index.index + 3);
+        if (url[0] === "/") url = url.substr(1);
         //judge component from ?,and delete it.
-        component_index=url.match(/\?/);
-        if(component_index) {
+        component_index = url.match(/\?/);
+        if (component_index) {
             component = url.substr(component_index.index + 1).split("&");
-            url=url.slice(0,component_index.index);
+            url = url.slice(0, component_index.index);
         }
         //judge port from :xxx, and delete it.
-        port_index=url.match(/:[0-9]{1,5}/);
-        if(port_index){
-            port=port_index[0].substr(1);
-            host=url.slice(0,port_index.index);
-            path=url.slice(port_index.index+port.length+1)||"/";
+        port_index = url.match(/:[0-9]{1,5}/);
+        if (port_index) {
+            port = port_index[0].substr(1);
+            host = url.slice(0, port_index.index);
+            path = url.slice(port_index.index + port.length + 1) || "/";
+        } else {
+            port = "";
+            host_index = url.indexOf("/");
+            if (host_index !== -1) {
+                host = url.slice(0, host_index);
+                path = url.slice(host_index);
+            } else host = url;
         }
-        else{
-            port="";
-            host_index=url.indexOf("/");
-            if(host_index!==-1){
-                host=url.slice(0,host_index);
-                path=url.slice(host_index);
-            }
-            else host=url;
-        }
-        var domains=host.split(".");
-        domain=domains?domains[domains.length-1]:"";
-        if(!zzz.equal.type(zzz.toNum(domain),"NaN")) domain=host;
-        subdomain=host.replace(domain,"");
-        if(subdomain[subdomain.length-1]===".") subdomain=subdomain.substr(0,subdomain.length-1);
-        var result={
-            protocol:protocol,
-            0:protocol,
-            path:zzz.code.path.decode(path),
-            host:host,
-            1:host,
-            domain:domain,
-            subdomain:subdomain,
-            port:port,
-            2:port,
-            component:{},
-            3:{}
+        var domains = host.split(".");
+        domain = domains ? domains[domains.length - 1] : "";
+        if (!zzz.equal.type(zzz.toNum(domain), "NaN")) domain = host;
+        subdomain = host.replace(domain, "");
+        if (subdomain[subdomain.length - 1] === ".") subdomain = subdomain.substr(0, subdomain.length - 1);
+        var result = {
+            protocol: protocol,
+            0: protocol,
+            path: zzz.code.path.decode(path),
+            host: host,
+            1: host,
+            domain: domain,
+            subdomain: subdomain,
+            port: port,
+            2: port,
+            component: {},
+            3: {}
         };
-        if(result.protocol==="file:"){
-            result.domain="";
-            result.subdomain="";
-            result[1]=result[2]="";
+        if (result.protocol === "file:") {
+            result.domain = "";
+            result.subdomain = "";
+            result[1] = result[2] = "";
         }
-        for(let i of component){
-            if(!i) continue;
-            let len=i.length;
-            for(var key=0;i[key]!=="="&&key<i.length;key++){}
-            let name=zzz.code.path.decode(i.substr(0,key));
-            let value=zzz.code.path.decode(i.substr(key+1));
-            result.component[name]=value;
-            result[3][name]=value;
+        for (let i of component) {
+            if (!i) continue;
+            let len = i.length;
+            for (var key = 0; i[key] !== "=" && key < i.length; key++) {}
+            let name = zzz.code.path.decode(i.substr(0, key));
+            let value = zzz.code.path.decode(i.substr(key + 1));
+            result.component[name] = value;
+            result[3][name] = value;
         }
         return result;
     },
-    merge:function(){
-        var result="";
-        if(arguments.length===1){
-            var short=arguments[0];
-            result+=short.protocol?(short.protocol+"//"):"";
-            if(short.protocol==="file:") result+="/";
-            result+=short.host||"";
-            result+=short.port?(":"+short.port):"";
-            if(short.path) result+=short.path;
-            if((!short.port)&&(!short.path)&&result[result.length-1]!=="/") result+="/";
-            result=zzz.code.uri.encode(result);
-            if(short.component) {
-                result+="?";
-                let items=[];
-                for(var i in short.component){
-                    if(!i) continue;
-                    items.push(zzz.code.path.encode(i)+"="+zzz.code.path.encode(short.component[i]));
+    merge: function () {
+        var result = "";
+        if (arguments.length === 1) {
+            var short = arguments[0];
+            result += short.protocol ? (short.protocol + "//") : "";
+            if (short.protocol === "file:") result += "/";
+            result += short.host || "";
+            result += short.port ? (":" + short.port) : "";
+            if (short.path) result += short.path;
+            if ((!short.port) && (!short.path) && result[result.length - 1] !== "/") result += "/";
+            result = zzz.code.url.encode(result);
+            if (short.component) {
+                result += "?";
+                let items = [];
+                for (var i in short.component) {
+                    if (!i) continue;
+                    items.push(zzz.code.path.encode(i) + "=" + zzz.code.path.encode(short.component[i]));
                 }
-                result+=items.join("&");
+                result += items.join("&");
             }
-            if(result[result.length-1]==="?") result=result.substr(0,result.length-1);
+            if (result[result.length - 1] === "?") result = result.substr(0, result.length - 1);
             return result;
-        }
-        else if(arguments.length===2&&zzz.equal.type(arguments[0],"string")&&zzz.equal.type(arguments[1],"object")){
-            let origin=zzz.path.split(arguments[0]);
-            for(var i in arguments[1]){
-                origin.component[i]=arguments[1][i];
+        } else if (arguments.length === 2 && zzz.equal.type(arguments[0], "string") && zzz.equal.type(arguments[1], "object")) {
+            let origin = zzz.path.split(arguments[0]);
+            for (var i in arguments[1]) {
+                origin.component[i] = arguments[1][i];
             }
             return zzz.path.merge(origin);
-        }
-        else console.log("invalid input for zzz.path.merge, the arguments are",arguments);
+        } else console.log("invalid input for zzz.path.merge, the arguments are", arguments);
     },
-    deleteEnd:function(url){return url.replace(/\/$/,"");},
-    abs:function (url,base) {
-        if(!base) base="";
-        var node=zzz.create("a");
-        zzz.set(node,"href",base+url);
-        var result=node.href;
-        node=null;
+    deleteEnd: function (url) {
+        return url.replace(/\/$/, "");
+    },
+    abs: function (url, base) {
+        if (!base) base = "";
+        var node = zzz.create("a");
+        zzz.set(node, "href", base + url);
+        var result = node.href;
+        node = null;
         return zzz.path.deleteEnd(result);
     }
 };
-//runner API
-//format:{
-//method:"equal" or "match" or "function"
-//string:"..."
-//function:"..."
-//}
-zzz.run={
-    init:function () {
-        if(!document.run) document.run=[];
-        var urlParts=zzz.path.split(zzz.browser.uri);
-        //to avoid tampermonkey restrictions
-        for(let i of document.run) {
-            try {
-                if (i.method === "equal") {
-                    if (i.string !== zzz.browser.uri) continue;
-                } else if (i.method === "match") {
-                    if (!zzz.browser.uri.match(i.string)) continue;
-                } else if (i.method === "function") {
-                    if (!(i.function && i.function(urlParts))) continue;
-                }
-                i.run();
-            }catch(e){console.log("something in zzz.run.init wrong!");}
 
+zzz.anim = {
+    translate: {
+        read: function (text) {
+            //only for 2.33px,46% and such
+            text = text.replace(/\s/g, "");
+            var i = text.match(/[0-9]/),
+                j;
+            if (!i) {
+                //pure string
+                return text;
+            } else {
+                i = text.match(/[^0-9\.]/);
+                j = i ? i.index : text.length;
+                return {
+                    value: zzz.toNum(text.slice(0, j)),
+                    unit: text.slice(j, text.length)
+                };
+            }
+        },
+        readColor: function (text) {
+            text = text.replace(/\s/g, "");
+            if (text[0] === "#") {
+                if (text.length === 7) {
+                    return {
+                        r: (zzz.value.hex(text[1]) << 4) + zzz.value.hex(text[2]),
+                        g: (zzz.value.hex(text[3]) << 4) + zzz.value.hex(text[4]),
+                        b: (zzz.value.hex(text[5]) << 4) + zzz.value.hex(text[6]),
+                    };
+                } else {
+                    throw new Error("unfinished function in readColor");
+                }
+            } else {
+                var splitText = text.split(","),
+                    result = {},
+                    name = ["r", "g", "b", "a"];
+                splitText.forEach(function (value, index, array) {
+                    result[name[index]] = zzz.toNum(value);
+                });
+                return result;
+            }
+        },
+        //TODO: there are bugs within
+        split: function (style, styleString) {
+            /*example:
+            "2en","rotate(4rad) translateX(3px)","SimSun,'Times New Roman'"
+            */
+            if (style.indexOf("-") !== -1) style = zzz.string.camel(style);
+            var splitString = [],
+                result = {},
+                i, j, k, l, index = 0;
+            if (style === "fontFamily") {
+                splitString = styleString.split(",");
+                for (i in splitString) {
+                    //remove ' "
+                    if (splitString[i][0] === "'" || splitString[i][0] === '"') {
+                        splitString[i] = splitString[i].slice(1, splitString[i].length - 1);
+                    }
+                }
+                return splitString;
+            } else if (style === "backgroundImage") {
+                i = styleString.indexOf("(");
+                j = styleString.lastIndexOf(")");
+                //TODO: BASE64
+                return styleString.slice(i + 1, j).replace(/['"]/g, "");
+            } else if (style.match(/color/i)) {
+                l = "color";
+                i = styleString;
+                j = i.indexOf("(");
+                if (j !== -1) k = zzz.anim.translate.readColor(i.slice(j + 1, i.length - 1));
+                else k = "";
+                result[l] = k;
+                return result;
+            } else {
+                splitString = styleString.split(" ");
+                for (i of splitString) {
+                    if (!i) continue;
+                    j = i.indexOf("(");
+                    l = i.slice(0, j);
+                    if (j !== -1) {
+                        k = zzz.anim.translate.read(i.slice(j + 1, i.length - 1));
+                        result[l] = k;
+                    } else {
+                        k = zzz.anim.translate.read(i);
+                        result[index++] = k;
+                    }
+                }
+                return result;
+            }
+        },
+        batch: function (CSSText) {
+            var splitText = CSSText.split(/[;\n]/),
+                i, j, k, l, result = {};
+            for (i of splitText) {
+                if (!i) continue;
+                j = i.indexOf(":");
+                l = i.slice(0, j).replace(/\s/g, "");
+                k = zzz.anim.translate.split(l, i.slice(j + 1));
+                result[zzz.string.camel(l)] = k;
+            }
+            return result;
+        },
+        calculate: function (currentValue, previousValue) {
+            if (!previousValue) previousValue = 0;
+            if (!currentValue) return previousValue;
+            //rule: prev stands for previousValue
+            var result = 0,
+                calculate = function (prev, string) {
+                    return zzz.eval(string.replace(/prev/g, prev));
+                };
+            if (zzz.equal.type(currentValue[0] - 0, "NaN")) {
+                if (currentValue[0] === "p") {
+                    return calculate(previousValue, currentValue);
+                } else return calculate(previousValue, "prev" + currentValue);
+            } else {
+                if (currentValue.match("prev")) {
+                    //calculate
+                    return calculate(previousValue, currentValue);
+                } else return currentValue;
+            }
+        },
+        merge: function (currentStyle, previousStyle) {
+            if (zzz.equal.type(currentStyle, "string")) return currentStyle;
+            if (!previousStyle) previousStyle = {};
+            var i, result = [];
+            for (i in currentStyle) {
+                if (zzz.equal.type(currentStyle[i], "string")) result.push(currentStyle[i]);
+                if (i === "color") {
+                    var core =
+                        zzz.anim.translate.calculate(currentStyle[i].r, previousStyle[i] ? previousStyle[i].r : null) +
+                        "," +
+                        zzz.anim.translate.calculate(currentStyle[i].g, previousStyle[i] ? previousStyle[i].g : null) +
+                        "," +
+                        zzz.anim.translate.calculate(currentStyle[i].b, previousStyle[i] ? previousStyle[i].b : null);
+                    if (currentStyle[i].a !== undefined || (previousStyle[i] && previousStyle[i].a !== undefined)) result.push("rgba(" + core + "," + zzz.anim.translate.calculate(currentStyle[i].a, previousStyle[i] ? previousStyle[i].a : null) + ")");
+                    else result.push("rgb(" + core + ")");
+                } else if (!!(i - 0 + 1) && currentStyle[i].value) result.push(zzz.anim.translate.calculate(currentStyle[i].value, (previousStyle[i] ? previousStyle[i].value || null : null)) + (currentStyle[i].unit || (previousStyle[i] && previousStyle[i].unit) || ""));
+                else {
+                    result.push(i + "(" + (currentStyle[i].value || "") + (currentStyle[i].unit || (previousStyle[i] && previousStyle[i].unit) || "") + ")");
+                }
+            }
+            return result.join(" ");
+        },
+        wrap: function (text) {
+            return {
+                0: {
+                    value: text
+                }
+            };
         }
+    },
+    set: function (element, style) {
+        for (let i in style) {
+            element.style[i] = style[i];
+        }
+    },
+    act: function (element, currentStyle, previousStyle) {
+        if (!previousStyle) previousStyle = {};
+        if (!zzz.anim.elements[element]) zzz.anim.elements[element] = {};
+        var i, previousValue;
+        for (i in currentStyle) {
+            if (zzz.equal.type(currentStyle[i], "string")) currentStyle[i] = zzz.anim.translate.wrap(currentStyle[i]);
+            previousValue = previousStyle[i];
+            if (previousValue === undefined || previousValue === null) previousValue = zzz.anim.elements[element][i];
+            if (previousValue === undefined || previousValue === null) previousValue = zzz.anim.translate.split(i, zzz.get.style(element, i));
+            currentStyle[i] = zzz.anim.translate.merge(currentStyle[i], previousValue);
+            //console.log(currentStyle[i]);
+            zzz.anim.elements[element][i] = zzz.anim.translate.split(i, currentStyle[i]);
+        }
+        zzz.anim.set(element, currentStyle);
+    },
+    elements: {},
+    requests: {}
+};
+//scroll API
+zzz.anim.scroll = {
+    to: function (element, x, y, isSmooth) {
+        if (!element) element = window;
+        if (isSmooth === undefined) isSmooth = true;
+        element.scrollTo(x, y, isSmooth);
+    },
+    by: function (element, x, y, isSmooth) {
+        if (!element) element = window;
+        if (isSmooth === undefined) isSmooth = true;
+        element.scrollBy(x, y, isSmooth);
+    },
+    into: function (element, isSmooth) {
+        if (!element) return;
+        if (isSmooth === undefined) isSmooth = true;
+        element.scrollIntoView(isSmooth);
     }
 };
-zzz.code={
-      uri: {
-        encode: function (text) {
-            return window.encodeURI(text);
-        },
-        decode: function (uri) {
-            return window.decodeURI(uri);
-        }
-    },
-    path: {
-        encode: function (text) {
-            return window.encodeURIComponent(text);
-        },
-        decode: function (component) {
-            return window.decodeURIComponent(component);
-        }
-    },
+zzz.api = {};
+zzz.value.keyCode = {
+    1: "leftbutton",
+    2: "rightbutton",
+    4: "middlebutton",
+    8: "backspace",
+    9: "tab",
+    13: "enter",
+    16: "shift",
+    17: "ctrl",
+    18: "alt",
+    19: "pause",
+    20: "capslock",
+    27: "esc",
+    32: "blank",
+    33: "pageup",
+    34: "pagedown",
+    35: "end",
+    36: "home",
+    37: "leftarrow",
+    38: "uparrow",
+    39: "rightarrow",
+    40: "downarrow",
+    44: "printscreen",
+    45: "insert",
+    46: "delete",
+    91: "winl",
+    92: "winr",
+    106: "*num",
+    107: "+num",
+    109: "-num",
+    110: ".num",
+    111: "/num",
+    144: "numlock",
+    145: "scrolllock",
+    160: " ",
+    186: ";",
+    187: "=",
+    188: ",",
+    189: "-",
+    190: ".",
+    191: "/",
+    192: "`",
+    219: "[",
+    220: "\\",
+    222: "'"
+
 };
-zzz.value.keyCode= {
-    1:"leftbutton",
-    2:"rightbutton",
-    4:"middlebutton",
-    8:"backspace",
-    9:"tab",
-    13:"enter",
-    16:"shift",
-    17:"ctrl",
-    18:"alt",
-    19:"pause",
-    20:"capslock",
-    27:"esc",
-    32:"blank",
-    33:"pageup",
-    34:"pagedown",
-    35:"end",
-    36:"home",
-    37:"leftarrow",
-    38:"uparrow",
-    39:"rightarrow",
-    40:"downarrow",
-    44:"printscreen",
-    45:"insert",
-    46:"delete",
-    91:"winl",
-    92:"winr",
-    106:"*num",
-    107:"+num",
-    109:"-num",
-    110:".num",
-    111:"/num",
-    144:"numlock",
-    145:"scrolllock",
-    160:" ",
-    186:";",
-    187:"=",
-    188:",",
-    189:"-",
-    190:".",
-    191:"/",
-    192:"`",
-    219:"[",
-    220:"\\",
-    222:"'"
-};
-zzz.value.convertTokey=function (code) {
-    if(code>=48&&code<=57) return code-48+"";
-    else if(code>=65&&code<=90) return String.fromCharCode(code+32);
-    else if(code>=96&&code<=105) return code-96+"num";
-    else if(code>=112&&code<=123) return "F"+(code-111);
-    else if(code in zzz.value.keyCode) return zzz.value.keyCode[code];
+zzz.value.convertTokey = function (code) {
+    if (code >= 48 && code <= 57) return code - 48 + "";
+    else if (code >= 65 && code <= 90) return String.fromCharCode(code + 32);
+    else if (code >= 96 && code <= 105) return code - 96 + "num";
+    else if (code >= 112 && code <= 123) return "F" + (code - 111);
+    else if (code in zzz.value.keyCode) return zzz.value.keyCode[code];
     else return String.fromCharCode(code);
 };
-zzz.anim={
-    set:function (element,style) {
-        for(let i in style){
-            element.style[i]=style[i];
-        }
-    }
-}
 //overall initialize
-zzz.init=function () {
-    zzz.storage.init();
-    zzz.incidence.init();
-    zzz.browser.init();
-    zzz.fetch.init();
-    zzz.inited=true;
-    try{
-        window.zzzloaded&&window.zzzloaded();
-        document.zzzloaded&&document.zzzloaded();
-    }
-    catch (e) {
+zzz.init = function () {
+    let funcs = [zzz.storage, zzz.incidence, zzz.browser, zzz.fetch];
+    for (let i of funcs) i.init();
+    zzz.inited = true;
+    try {
+        window.zzzloaded && window.zzzloaded();
+        document.zzzloaded && document.zzzloaded();
+    } catch (e) {
 
     }
 };
 zzz.init();
+//自动登录
+window.pku_user_name = "";
+window.pku_user_password = "";
+//页面url
+window.page_url = zzz.path.split(zzz.browser.uri);
+//刷新时间
+window.lastRefreshed = new Date();
+//头
+window.headers = {
+    accept: "application/json, text/javascript, */*; q=0.01",
+    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+    origin: "https://elective.pku.edu.cn",
+    "X-Requested-With": "XMLHttpRequest"
+};
 //建立存储
 if (!zzz.storage.json("desired")) zzz.storage.set("desired", "[]");
 //读取想要的课程列表
@@ -1112,8 +1495,8 @@ window.msg = zzz.create("p", {
 window.add_opacity = false;
 //数据
 window.abbr = function (name) {
-    var origin = "信息 地球 国际 环境 生命 城市 中国语言 新闻".split(" ");
-    var abbriv = "信科 地空 国关 环科 生科 城环 汉语         新传".split(" ");
+    var origin = "信息科学 地球 国际 环境 生命 城市 中国语言 新闻".split(" ");
+    var abbriv = "信科 地空 国关 环科 生科 城环 汉语 新传".split(" ");
     var origin2 = "化学 物理 马克思 心理 艺术 经济 外国 法学".split(" ");
     for (var i in origin) {
         if (name.search(origin[i]) == 0) return abbriv[i];
@@ -1253,6 +1636,7 @@ window.confirmSelect = function (xh, stuName, courseName, classNo, onlySupp, ind
     }
     if (!window.validate(xh)) return false;
     //2021.09从supplement.js摘录
+    //2022.02又被注释掉了，但在我这里没有做改动
     var no = "";
     if (classNo != "")
         no = "班号:" + classNo + "。";
@@ -1590,7 +1974,7 @@ window.beautifyClass = function () {
 };
 window.lazy = {
     funcs: {},
-    time:2000,
+    time: 2000,
     register: function (name, func) {
         if (!this.funcs[name]) {
             this.funcs[name] = {};
@@ -1601,15 +1985,17 @@ window.lazy = {
         t.time = new Date();
         this.tick(name);
     },
-    tick:function(name){
-        setTimeout(function(){lazy.run(name);},2*1000);
+    tick: function (name) {
+        setTimeout(function () {
+            lazy.run(name);
+        }, 2 * 1000);
     },
-    run:function(name){
-        if(this.funcs[name]){
-            var diff=new Date()-this.funcs[name].time;
-            if(diff<lazy.time) return;
+    run: function (name) {
+        if (this.funcs[name]) {
+            var diff = new Date() - this.funcs[name].time;
+            if (diff < lazy.time) return;
             this.funcs[name].func();
-            this.funcs[name].time=new Date();
+            this.funcs[name].time = new Date();
         }
     }
 }
@@ -1617,11 +2003,19 @@ window.autoSubmit = function () {
     beautify();
     var form = zzz.get.id("qyForm");
     if (!form) return;
-    for(let i of form.getElementsByTagName("input")){
-        if(i.type=="radio")
-        zzz.incidence.bind(i,"click",function(){lazy.register(i.id,function(){zzz.get.id("b_query").click();});});
-        else if(i.type=="text")
-        zzz.incidence.bind(i,"change",function(){lazy.register(i.id,function(){zzz.get.id("b_query").click();});});
+    for (let i of form.getElementsByTagName("input")) {
+        if (i.type == "radio")
+            zzz.incidence.bind(i, "click", function () {
+                lazy.register(i.id, function () {
+                    zzz.get.id("b_query").click();
+                });
+            });
+        else if (i.type == "text")
+            zzz.incidence.bind(i, "change", function () {
+                lazy.register(i.id, function () {
+                    zzz.get.id("b_query").click();
+                });
+            });
     }
 }
 
@@ -1652,8 +2046,7 @@ function init_elect() {
         //zzz.time.loop(fresh, zzz.random.int(60000, 600000))
     };
 }
-//页面url
-window.page_url = zzz.path.split(zzz.browser.uri);
+
 function queryPath(regstr) {
     return page_url.path.search(regstr) !== -1;
 }
