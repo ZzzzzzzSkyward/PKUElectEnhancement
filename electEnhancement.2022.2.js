@@ -294,7 +294,7 @@ window.sendMessage = function (text) {
 window.validate = function (xh) {
     var valid = false;
     var cd = getv(code);
-    if (cd.length !== 4) {
+    if (cd.length <= 0) {
         sendMessage("验证码???");
         return false;
     }

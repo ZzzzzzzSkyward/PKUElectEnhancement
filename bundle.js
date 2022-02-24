@@ -319,9 +319,9 @@ zzz.time = {
         for (var i = 0; i < loop; i++) func();
         console.timeEnd(name);
     },
-    stringify: function (ztime,format) {
+    stringify: function (ztime, format) {
         var result = "",
-            cn = format===undefined?"chinesenumber":format;
+            cn = format === undefined ? "chinesenumber" : format;
         result += ztime.year ? (zzz.string.stringify(ztime.year, "chinese") + "年") : "";
         result += ztime.month ? (zzz.string.stringify(ztime.month, cn) + "月") : "";
         result += ztime.day ? (zzz.string.stringify(ztime.day, cn) + "日") : "";
@@ -670,7 +670,7 @@ zzz.queryAttr = function (name, parent, func) {
     if (typeof func === "function") {
         for (let i in elements) {
             let res = func(elements[i], i);
-            if(res!==undefined) result.push(res);
+            if (res !== undefined) result.push(res);
         }
     }
     return result;
@@ -923,7 +923,7 @@ zzz.fetch = {
                 //callback is json/text/blob which can apply the respective function .x()
                 var promise = fetch(settings.url, init);
                 if (settings.callback) return promise.then(settings.callback);
-                else{
+                else {
                     return promise;
                 }
             };
@@ -1723,7 +1723,7 @@ window.sendMessage = function (text) {
 window.validate = function (xh) {
     var valid = false;
     var cd = getv(code);
-    if (cd.length !== 4) {
+    if (cd.length <= 0) {
         sendMessage("验证码???");
         return false;
     }
