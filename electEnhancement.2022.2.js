@@ -524,7 +524,7 @@ window.beautifyClass = function () {
         });
         zzz.anim.set(validImg, {
             width: "400px",
-            filter: "contrast(2)",
+            filter: "brightness(.6) contrast(4)",
             opacity: 0.8
         });
         //单击图片刷新
